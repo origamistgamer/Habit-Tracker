@@ -1,73 +1,56 @@
-# AgentHandoff.md — Streakr v2
+# AgentHandoff.md — Streakr v3
 
 ## Repo
-https://github.com/origamistgamer/Habit-Tracker  
-Branch: `main` | Owner: `origamistgamer`
+https://github.com/origamistgamer/Habit-Tracker | Branch: `main` | Owner: `origamistgamer`
 
 ## Stack
-Vanilla HTML + CSS + JS. No frameworks, no build tools. `localStorage` for persistence. Google Fonts: DM Sans + DM Mono.
+Vanilla HTML + CSS + JS. No frameworks/build tools. `localStorage` key: `streakr_v3`. Google Fonts: Inter + Space Grotesk.
 
-## Design Language
-Inspired by everyday.app — ultra-minimal dark UI (`#0a0a0a` bg), calendar grid as the hero, habits as rows, colored dots per day. Right sidebar for summary stats. Monospace accents (DM Mono) for numbers/labels.
+## Design
+- Dark (`#0c0c0e`) with indigo/purple gradient accent (`#818cf8 → #c084fc`)
+- Sidebar navigation (Today / Calendar / Stats)
+- Today view: card grid with emoji icons, check circles, streak pills, week pips
+- Calendar view: monthly grid, colored dots per completion, month navigation
+- Stats view: 4 summary tiles + per-habit progress bars + 84-day heatmap
+- Modal: emoji picker, color swatches, frequency pills, gradient save btn
 
-## Files
-| File | Role |
-|------|------|
-| `index.html` | Shell: topbar, grid (header + rows), summary panel, modal |
-| `style.css` | Full token system, grid layout, dot styles, modal |
-| `app.js` | All state/logic |
-
-## Data Model (`localStorage` key: `streakr_v2`)
+## Data Model (`streakr_v3`)
 ```json
-[
-  {
-    "id": "abc123",
-    "name": "Morning run",
-    "color": "#A78BFA",
-    "log": { "2026-06-10": 1, "2026-06-09": 1 }
-  }
-]
+[{ "id":"abc","name":"Morning run","color":"#818cf8","emoji":"🏃","freq":7,"log":{"2026-06-10":1} }]
 ```
 
-## Key State
-```js
-state = { habits: [], year: 2026, month: 5 } // month 0-indexed
-```
+## Key Functions (app.js)
+- `render()` → dispatches to `renderToday()`, `renderGrid()`, `renderStats()`
+- `getStreak(h)` → consecutive days backward
+- `getWeekLog(h)` → last 7 days for week pips
+- `toggleDay(id, date)` → toggle + save + re-render
+- `openModal(id)` → null=new, id=edit
+- `setView(v)` → switches views
 
-## Key Functions
-- `render()` — full re-render (header + grid + summary)
-- `renderGrid()` — builds day-number header + habit rows with dot buttons
-- `renderSummary()` — updates today count, best streak, month %, legend
-- `getStreak(habit)` — counts consecutive days backward
-- `openModal(id)` — null = new habit, id = edit
-- `prevMonth()` / `nextMonth()` — navigate calendar
+## Working Features
+- Today view: card grid, check off habits, streak counter, 7-day pips, completion ring
+- Calendar: full month grid, click any dot to toggle, month nav
+- Stats: summary tiles, per-habit 30-day %, heatmap
+- Add/edit/delete habits with emoji, color, name, frequency
+- Keyboard: Enter=save, Esc=close
 
-## What's Working
-- Full monthly calendar grid view with colored dot per completed day
-- Navigate months (prev/next/today)
-- Add, edit, delete habits
-- Click any past/today dot to toggle completion
-- Right panel: today's count, best streak, month %, habit legend
-- Keyboard: Enter = save, Esc = close modal
+## Next Steps
+1. Drag-to-reorder habits (SortableJS CDN)
+2. PWA — manifest.json + service worker
+3. Daily push notifications
+4. Week view toggle
+5. Import/export JSON
+6. Notes per check-in (long press / right click)
+7. Habit archive (soft delete)
+8. Mobile bottom nav (sidebar hidden on mobile)
+9. Confetti animation on 100% completion
 
-## Next Steps (priority order)
-1. **Habit reorder** — drag to reorder rows (use SortableJS CDN)
-2. **PWA** — add `manifest.json` + service worker for offline + install
-3. **Notifications** — daily reminder via Web Notifications API with user-set time
-4. **Week view** — toggle between month and 7-day view
-5. **Import/export** — JSON backup download/restore
-6. **Habit archive** — soft-delete instead of permanent
-7. **Notes on check-in** — optional note per dot (click-hold or right-click)
-8. **Mobile sidebar** — swipe-up sheet for summary panel on small screens
-9. **Favicon** — add `favicon.svg` using the brand dot
-
-## GitHub Push Snippet
+## Push Snippet
 ```python
 from github import Github, Auth
 g = Github(auth=Auth.Token('TOKEN'))
 repo = g.get_user().get_repo('Habit-Tracker')
-ex = repo.get_contents('filename')
-repo.update_file('filename', 'commit msg', open('filename').read(), ex.sha)
+ex = repo.get_contents('file.ext')
+repo.update_file('file.ext', 'msg', open('file.ext').read(), ex.sha)
 ```
-
-*Handoff generated — June 10, 2026*
+*Handoff — Streakr v3 — June 10, 2026*
