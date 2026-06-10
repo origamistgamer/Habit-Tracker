@@ -1,5 +1,5 @@
 /* ══════════════════════════════════
-   Streakr v3 — app.js
+   Streakr v4 — app.js
 ══════════════════════════════════ */
 const STORE = 'streakr_v3';
 
@@ -10,6 +10,8 @@ let editingId = null;
 let pickedColor = '#818cf8';
 let pickedEmoji = '🏃';
 let pickedFreq = 7;
+let sortableInstance = null;
+let lastAllDone = false; // prevent repeat confetti
 
 /* ── Storage ── */
 function loadHabits() {
@@ -30,12 +32,73 @@ function getStreak(h) {
   return s;
 }
 
+function getBestStreak(h) {
+  const dates = Object.keys(h.log).filter(k => h.log[k]).sort();
+  if (dates.length === 0) return 0;
+  
+  let maxStreak = 0;
+  let currentStreak = 0;
+  let prevDate = null;
+  
+  for (const dateStr of dates) {
+    const currentDate = new Date(dateStr + 'T00:00:00');
+    if (prevDate === null) {
+      currentStreak = 1;
+    } else {
+      const diffTime = currentDate - prevDate;
+      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+      if (diffDays === 1) {
+        currentStreak++;
+      } else if (diffDays > 1) {
+        if (currentStreak > maxStreak) maxStreak = currentStreak;
+        currentStreak = 1;
+      }
+    }
+    prevDate = currentDate;
+  }
+  if (currentStreak > maxStreak) maxStreak = currentStreak;
+  return maxStreak;
+}
+
 /* ── Week pips (last 7 days incl today) ── */
 function getWeekLog(h) {
   return Array.from({length:7}, (_,i) => {
     const d = new Date(); d.setDate(d.getDate() - (6-i));
     return { date: fmtDate(d), done: !!h.log[fmtDate(d)], isToday: i === 6 };
   });
+}
+
+/* ══════════════════════════════════
+   CONFETTI
+══════════════════════════════════ */
+function fireConfetti() {
+  if (typeof confetti === 'undefined') return;
+  const colors = habits.map(h => h.color).filter(Boolean);
+  const defaults = { spread: 80, ticks: 80, gravity: 0.9, decay: 0.92, startVelocity: 30 };
+
+  function shoot(particleRatio, opts) {
+    confetti(Object.assign({}, defaults, opts, {
+      particleCount: Math.floor(150 * particleRatio),
+      colors: colors.length ? colors : ['#818cf8','#c084fc','#34d399']
+    }));
+  }
+  shoot(0.25, { spread: 26, startVelocity: 55, origin: { x: 0.5, y: 0.8 } });
+  shoot(0.2,  { spread: 60, origin: { x: 0.5, y: 0.8 } });
+  shoot(0.35, { spread: 100, decay: 0.91, scalar: 0.8, origin: { x: 0.5, y: 0.8 } });
+  shoot(0.1,  { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2, origin: { x: 0.5, y: 0.8 } });
+  shoot(0.1,  { spread: 120, startVelocity: 45, origin: { x: 0.5, y: 0.8 } });
+}
+
+function checkAndCelebrate() {
+  const today = todayStr();
+  if (!habits.length) { lastAllDone = false; return; }
+  const allDone = habits.every(h => !!h.log[today]);
+  if (allDone && !lastAllDone) {
+    fireConfetti();
+    lastAllDone = true;
+  } else if (!allDone) {
+    lastAllDone = false;
+  }
 }
 
 /* ══════════════════════════════════
@@ -67,6 +130,7 @@ function renderToday() {
     container.appendChild(emptyEl);
     document.getElementById('todaySummary').style.display = 'none';
     updateRing(0, 0);
+    destroySortable();
     return;
   }
 
@@ -80,12 +144,14 @@ function renderToday() {
     const card = document.createElement('div');
     card.className = 'habit-card' + (done ? ' done' : '');
     card.style.setProperty('--hc', h.color);
+    card.dataset.id = h.id;
 
     const pipsHtml = week.map(w =>
       `<div class="week-pip${w.done?' lit':''}${w.isToday?' today-pip':''}"></div>`
     ).join('');
 
     card.innerHTML = `
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
       <div class="card-top">
         <div class="card-emoji">${h.emoji}</div>
         <button class="check-circle" data-id="${h.id}">${done ? '✓' : ''}</button>
@@ -103,7 +169,10 @@ function renderToday() {
       e.stopPropagation();
       toggleDay(h.id, today);
     });
-    card.addEventListener('click', () => openModal(h.id));
+    card.addEventListener('click', ev => {
+      if (ev.target.closest('.check-circle') || ev.target.closest('.drag-handle')) return;
+      openModal(h.id);
+    });
     container.appendChild(card);
   });
 
@@ -115,6 +184,10 @@ function renderToday() {
   document.getElementById('numLeft').textContent = leftCount;
   document.getElementById('numStreak').textContent = bestStreak;
   updateRing(doneCount, habits.length);
+
+  // Re-init sortable
+  initSortable();
+  checkAndCelebrate();
 }
 
 function updateRing(done, total) {
@@ -130,6 +203,32 @@ function toggleDay(id, date) {
   if (h.log[date]) delete h.log[date];
   else h.log[date] = 1;
   saveHabits(); render();
+}
+
+/* ══════════════════════════════════
+   SORTABLE (drag to reorder)
+══════════════════════════════════ */
+function initSortable() {
+  destroySortable();
+  const el = document.getElementById('todayHabits');
+  if (!el || typeof Sortable === 'undefined') return;
+  sortableInstance = Sortable.create(el, {
+    handle: '.drag-handle',
+    animation: 180,
+    easing: 'cubic-bezier(.4,0,.2,1)',
+    ghostClass: 'sortable-ghost',
+    chosenClass: 'sortable-chosen',
+    onEnd(evt) {
+      const moved = habits.splice(evt.oldIndex, 1)[0];
+      habits.splice(evt.newIndex, 0, moved);
+      saveHabits();
+      // No full re-render; DOM is already updated by Sortable
+    }
+  });
+}
+
+function destroySortable() {
+  if (sortableInstance) { sortableInstance.destroy(); sortableInstance = null; }
 }
 
 /* ══════════════════════════════════
@@ -187,7 +286,7 @@ function renderGrid() {
         (isDone ? ' gd-done' : '') +
         (isToday ? ' gd-today' : '') +
         (isFuture ? ' gd-future' : '');
-      if (isDone) { dot.style.background = h.color; dot.style.opacity = '0.85'; }
+      if (isDone) { dot.style.setProperty('--dot-color', h.color); }
       if (!isFuture) dot.addEventListener('click', () => toggleDay(h.id, str));
       row.appendChild(dot);
     });
@@ -207,7 +306,7 @@ function renderStats() {
   const totalHabits = habits.length;
   const totalCheckins = habits.reduce((s,h) => s + Object.keys(h.log).length, 0);
   const doneToday = habits.filter(h => !!h.log[today]).length;
-  const bestStreak = habits.reduce((b,h) => Math.max(b, getStreak(h)), 0);
+  const bestStreak = habits.reduce((b,h) => Math.max(b, getBestStreak(h)), 0);
 
   const content = document.getElementById('statsContent');
   content.innerHTML = '';
@@ -235,9 +334,8 @@ function renderStats() {
     const listWrap = document.createElement('div');
     listWrap.className = 'stats-habit-list';
     habits.forEach(h => {
-      const streak = getStreak(h);
-      const total = Object.keys(h.log).length;
-      // completion rate (last 30 days)
+      const curStreak = getStreak(h);
+      const bstStreak = getBestStreak(h);
       let possible = 0, done = 0;
       for (let i = 0; i < 30; i++) {
         const d = new Date(); d.setDate(d.getDate()-i);
@@ -246,6 +344,7 @@ function renderStats() {
       const pct = possible ? Math.round((done/possible)*100) : 0;
       const row = document.createElement('div');
       row.className = 'stats-habit-row';
+      row.style.setProperty('--hc', h.color);
       row.innerHTML = `
         <div class="shr-emoji">${h.emoji}</div>
         <div class="shr-info">
@@ -255,7 +354,12 @@ function renderStats() {
           </div>
         </div>
         <div class="shr-nums">
-          <div class="shr-streak" style="color:${h.color}">${streak}🔥</div>
+          <div class="shr-streak" style="color:${h.color}">
+            <span class="shr-streak-val">${curStreak}</span><span class="shr-streak-label">current</span>
+            <span class="shr-streak-sep">|</span>
+            <span class="shr-streak-val">${bstStreak}</span><span class="shr-streak-label">best</span>
+            <span class="shr-streak-fire">🔥</span>
+          </div>
           <div class="shr-days">${pct}% / 30d</div>
         </div>
       `;
@@ -285,6 +389,8 @@ function renderStats() {
     }
   }, 0);
 }
+
+
 
 /* ══════════════════════════════════
    MODAL
@@ -347,6 +453,14 @@ function setView(v) {
 ══════════════════════════════════ */
 function init() {
   loadHabits();
+  
+  // Dynamic default view based on habit availability
+  if (habits.length === 0) {
+    view = 'landing';
+  } else {
+    view = 'today';
+  }
+
   const now = new Date();
   gridYear = now.getFullYear();
   gridMonth = now.getMonth();
@@ -362,11 +476,11 @@ function init() {
       </defs>
     </svg>`);
 
-  // Nav
+  // Sidebar nav
   document.querySelectorAll('.nav-btn').forEach(b =>
     b.addEventListener('click', () => setView(b.dataset.view)));
 
-  // Add btn
+  // Add btn (sidebar)
   document.getElementById('openAdd').addEventListener('click', () => openModal());
 
   // Month nav
@@ -404,7 +518,13 @@ function init() {
     if (e.key === 'Enter' && document.getElementById('overlay').classList.contains('open')) saveHabit();
   });
 
-  render();
+  // Register Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(err => console.warn('SW:', err));
+  }
+
+  // Go to correct view
+  setView(view);
 }
 
 document.addEventListener('DOMContentLoaded', init);
