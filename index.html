@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Habit Tracker</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+</head>
+<body>
+  <div class="app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-icon">◎</span>
+        <span class="brand-name">Streakr</span>
+      </div>
+      <nav class="nav">
+        <button class="nav-item active" data-view="today">
+          <span class="nav-icon">⊡</span> Today
+        </button>
+        <button class="nav-item" data-view="all">
+          <span class="nav-icon">≡</span> All Habits
+        </button>
+        <button class="nav-item" data-view="stats">
+          <span class="nav-icon">◈</span> Stats
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="quote" id="quote"></div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+
+      <!-- Header -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1 class="page-title" id="pageTitle">Today</h1>
+          <p class="page-subtitle" id="pageSubtitle"></p>
+        </div>
+        <div class="topbar-right">
+          <div class="progress-ring-wrap" title="Today's completion">
+            <svg class="progress-ring" width="52" height="52">
+              <circle class="ring-bg" cx="26" cy="26" r="20"/>
+              <circle class="ring-fill" id="ringFill" cx="26" cy="26" r="20"/>
+            </svg>
+            <span class="ring-label" id="ringLabel">0%</span>
+          </div>
+          <button class="btn-add" id="btnAdd">+ New Habit</button>
+        </div>
+      </header>
+
+      <!-- Views -->
+      <section class="view active" id="view-today">
+        <div class="habits-grid" id="todayList">
+          <div class="empty-state" id="emptyToday">
+            <div class="empty-icon">◎</div>
+            <p>No habits yet. Add one to start your streak.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="view-all">
+        <div class="habits-grid" id="allList"></div>
+      </section>
+
+      <section class="view" id="view-stats">
+        <div class="stats-grid" id="statsGrid"></div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modalTitle">New Habit</h2>
+        <button class="modal-close" id="modalClose">✕</button>
+      </div>
+      <div class="modal-body">
+        <label>Habit Name
+          <input type="text" id="habitName" placeholder="e.g. Morning run" maxlength="40"/>
+        </label>
+        <label>Category
+          <select id="habitCategory">
+            <option value="health">🏃 Health</option>
+            <option value="mind">🧠 Mind</option>
+            <option value="work">💼 Work</option>
+            <option value="social">🤝 Social</option>
+            <option value="creative">🎨 Creative</option>
+            <option value="other">✦ Other</option>
+          </select>
+        </label>
+        <label>Goal (days/week)
+          <div class="freq-picker" id="freqPicker">
+            <button class="freq-btn active" data-val="7">Every day</button>
+            <button class="freq-btn" data-val="5">5×</button>
+            <button class="freq-btn" data-val="3">3×</button>
+            <button class="freq-btn" data-val="1">1×</button>
+          </div>
+        </label>
+        <label>Color
+          <div class="color-picker" id="colorPicker">
+            <button class="color-swatch active" data-color="#6C63FF" style="background:#6C63FF"></button>
+            <button class="color-swatch" data-color="#FF6584" style="background:#FF6584"></button>
+            <button class="color-swatch" data-color="#43C6AC" style="background:#43C6AC"></button>
+            <button class="color-swatch" data-color="#F9A825" style="background:#F9A825"></button>
+            <button class="color-swatch" data-color="#FF7043" style="background:#FF7043"></button>
+            <button class="color-swatch" data-color="#26C6DA" style="background:#26C6DA"></button>
+          </div>
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="btnDelete" style="display:none">Delete</button>
+        <button class="btn-primary" id="btnSave">Save Habit</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
