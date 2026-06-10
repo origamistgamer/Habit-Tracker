@@ -1,7 +1,20 @@
-__pycache__/
-*.py[cod]
-.pytest_cache/
-.coverage
-coverage.xml
-htmlcov/
-.cache/
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+
+# Logs
+*.log

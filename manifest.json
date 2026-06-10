@@ -1,6 +1,6 @@
 {
-  "name": "Habit Tracker",
-  "short_name": "Habits",
+  "name": "Streakr - Habit Tracker",
+  "short_name": "Streakr",
   "description": "Build daily habits and track your streaks",
   "start_url": "/",
   "display": "standalone",

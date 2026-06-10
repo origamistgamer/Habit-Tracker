@@ -1,32 +1,33 @@
 stages:
-  - test
+  - lint
+  - audit
+  - deploy
 
-variables:
-  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-
-test:coverage:
-  stage: test
-  image: python:3.12-slim
-  cache:
-    paths:
-      - .cache/pip
-  before_script:
-    - pip install -r requirements-dev.txt
+lint:frontend:
+  stage: lint
+  image: node:20-alpine
   script:
-    - pytest --cov=streakr --cov-report=xml --cov-report=term
-  coverage: '/TOTAL.*\s+(\d+%)$/'
+    - npm ci
+    - npm run lint
+    - npm run knip
+  allow_failure: false
+
+audit:secrets:
+  stage: audit
+  image:
+    name: zricethezav/gitleaks:latest
+    entrypoint: [""]
+  script:
+    - gitleaks detect --source . --verbose
+  allow_failure: false
+
+pages:
+  stage: deploy
+  script:
+    - mkdir -p public
+    - cp index.html app.js style.css manifest.json sw.js public/
   artifacts:
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: coverage.xml
-
-codecov:
-  stage: test
-  image: python:3.12-slim
-  needs:
-    - test:coverage
-  script:
-    - echo "Coverage XML available for codecov upload"
-  rules:
-    - if: $CI_COMMIT_BRANCH
+    paths:
+      - public
+  only:
+    - main

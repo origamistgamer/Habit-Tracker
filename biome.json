@@ -1,0 +1,18 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "style": {
+        "useTemplate": "off"
+      },
+      "suspicious": {
+        "useIterableCallbackReturn": "off"
+      }
+    }
+  },
+  "files": {
+    "includes": ["app.js", "!sw.js", "!node_modules"]
+  }
+}

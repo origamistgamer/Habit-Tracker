@@ -10,9 +10,9 @@ Streakr is a vanilla HTML, CSS, and JavaScript habit tracker. Prefer zero-build-
 
 The app MUST work offline via PWA (`manifest.json`, `sw.js`) and persist habits under the `streakr_v3` storage key. Network calls are optional enhancements, never required for core flows.
 
-### III. Test Coverage (NON-NEGOTIABLE)
+### III. No Unnecessary Tooling
 
-Pure logic (date formatting, streak calculation, backup schema validation) MUST have automated tests. CI runs `pytest --cov` on every push; coverage must not regress without justification.
+No Python backend, no Node build chain, and no package manager required to run the app. Open `index.html` via any static file server or deploy as static assets.
 
 ### IV. Small, Focused Changes
 
@@ -31,12 +31,11 @@ The project remains licensed under AGPLv3. Third-party assets (fonts, CDNs) must
 ## Development Workflow
 
 1. Update or create specs under `specs/` when adding non-trivial features.
-2. Run `pytest --cov=streakr` locally before pushing.
-3. Pre-commit hooks and GitLab CI must pass.
-4. Export/import JSON backups must remain backward-compatible with `streakr_v3`.
+2. Pre-commit hooks and GitLab CI must pass.
+3. Export/import JSON backups must remain backward-compatible with `streakr_v3`.
 
 ## Governance
 
 This constitution supersedes ad-hoc decisions. Amendments require updating this file and noting the version below. All PRs should verify alignment with these principles.
 
-**Version**: 1.0.0 | **Ratified**: 2026-06-10 | **Last Amended**: 2026-06-10
+**Version**: 1.1.0 | **Ratified**: 2026-06-10 | **Last Amended**: 2026-06-10
