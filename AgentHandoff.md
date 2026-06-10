@@ -1,137 +1,73 @@
-# AgentHandoff.md — Habit Tracker (Streakr)
+# AgentHandoff.md — Streakr v2
 
-## Project Overview
-A dark-themed habit tracking web app called **Streakr** built with vanilla HTML/CSS/JS (no frameworks, no build tools).  
-**Repo:** https://github.com/origamistgamer/Habit-Tracker  
-**Stack:** Pure HTML + CSS + JS, localStorage for persistence, Google Fonts (Syne + Inter).
+## Repo
+https://github.com/origamistgamer/Habit-Tracker  
+Branch: `main` | Owner: `origamistgamer`
 
----
+## Stack
+Vanilla HTML + CSS + JS. No frameworks, no build tools. `localStorage` for persistence. Google Fonts: DM Sans + DM Mono.
 
-## Completed Checkpoints ✅
+## Design Language
+Inspired by everyday.app — ultra-minimal dark UI (`#0a0a0a` bg), calendar grid as the hero, habits as rows, colored dots per day. Right sidebar for summary stats. Monospace accents (DM Mono) for numbers/labels.
 
-| # | File | Status | Notes |
-|---|------|--------|-------|
-| 1 | `index.html` | ✅ Pushed | Full app shell, sidebar, modal, views |
-| 2 | `style.css` | ✅ Pushed | Complete design system, dark theme, responsive |
-| 3 | `app.js` | ✅ Pushed | Full logic — habits, streaks, localStorage, stats |
+## Files
+| File | Role |
+|------|------|
+| `index.html` | Shell: topbar, grid (header + rows), summary panel, modal |
+| `style.css` | Full token system, grid layout, dot styles, modal |
+| `app.js` | All state/logic |
 
----
-
-## Architecture
-
-```
-Habit-Tracker/
-├── index.html     # App shell — sidebar nav, topbar, 3 view sections, modal
-├── style.css      # Design tokens, layout, cards, modal, stats, responsive
-└── app.js         # All state + logic
-```
-
-### Data Model (localStorage key: `streakr_v1`)
+## Data Model (`localStorage` key: `streakr_v2`)
 ```json
 [
   {
     "id": "abc123",
     "name": "Morning run",
-    "category": "health",
-    "color": "#6C63FF",
-    "freq": 7,
-    "log": { "2026-06-10": 1, "2026-06-09": 1 },
-    "created": "2026-06-01"
+    "color": "#A78BFA",
+    "log": { "2026-06-10": 1, "2026-06-09": 1 }
   }
 ]
 ```
 
-### Key Functions in app.js
-- `load()` / `save()` — localStorage read/write
-- `getStreak(habit)` — counts consecutive days backward from today
-- `renderToday()` — renders today's habits with check buttons
-- `renderAll()` — renders all habits (edit mode)
-- `renderStats()` — streak stats + 70-day activity heatmap
-- `buildCard(habit, showCheck)` — builds a `.habit-card` DOM element
-- `toggleToday(id)` — marks/unmarks habit for today
-- `openModal(id)` — opens add/edit modal; `null` id = new habit
-- `setView(view)` — switches between `today`, `all`, `stats`
-
----
-
-## Design System
-
-| Token | Value |
-|-------|-------|
-| `--bg` | `#0d0d0f` |
-| `--surface` | `#16161a` |
-| `--surface2` | `#1e1e24` |
-| `--border` | `#2a2a33` |
-| `--accent` | `#6C63FF` |
-| Font display | Syne (800 weight) |
-| Font body | Inter |
-
-Cards use `--card-color` CSS custom property for per-habit color theming.
-
----
-
-## Pending / Suggested Next Steps
-
-### High Priority
-- [ ] **Notifications / Reminders** — Web Notifications API, daily reminder at user-set time
-- [ ] **Habit reordering** — drag-and-drop with SortableJS
-- [ ] **Archive vs Delete** — soft-delete habits instead of permanent removal
-- [ ] **Mobile sidebar** — hamburger menu for mobile (sidebar is hidden on <700px)
-
-### Features to Add
-- [ ] **Weekly report modal** — summary popup every Sunday
-- [ ] **Import/Export** — JSON download/upload for backup
-- [ ] **Notes per check-in** — allow adding a short note when marking done
-- [ ] **Multiple completions/day** — counter-type habits (e.g. "drink 8 glasses")
-- [ ] **Habit categories filter** — filter today/all views by category
-- [ ] **Dark/light theme toggle**
-- [ ] **Onboarding flow** — first-time user sees sample habits
-
-### Technical Improvements
-- [ ] Add `manifest.json` + service worker → make it a PWA
-- [ ] Add `favicon.svg`
-- [ ] Consider splitting app.js into modules if >500 lines
-- [ ] Add keyboard shortcut `N` to open new habit modal
-
----
-
-## GitHub Setup
-
-```
-Repo:    https://github.com/origamistgamer/Habit-Tracker
-Branch:  main
-Owner:   origamistgamer
+## Key State
+```js
+state = { habits: [], year: 2026, month: 5 } // month 0-indexed
 ```
 
-### How to Push New Files (Python + PyGithub)
+## Key Functions
+- `render()` — full re-render (header + grid + summary)
+- `renderGrid()` — builds day-number header + habit rows with dot buttons
+- `renderSummary()` — updates today count, best streak, month %, legend
+- `getStreak(habit)` — counts consecutive days backward
+- `openModal(id)` — null = new habit, id = edit
+- `prevMonth()` / `nextMonth()` — navigate calendar
+
+## What's Working
+- Full monthly calendar grid view with colored dot per completed day
+- Navigate months (prev/next/today)
+- Add, edit, delete habits
+- Click any past/today dot to toggle completion
+- Right panel: today's count, best streak, month %, habit legend
+- Keyboard: Enter = save, Esc = close modal
+
+## Next Steps (priority order)
+1. **Habit reorder** — drag to reorder rows (use SortableJS CDN)
+2. **PWA** — add `manifest.json` + service worker for offline + install
+3. **Notifications** — daily reminder via Web Notifications API with user-set time
+4. **Week view** — toggle between month and 7-day view
+5. **Import/export** — JSON backup download/restore
+6. **Habit archive** — soft-delete instead of permanent
+7. **Notes on check-in** — optional note per dot (click-hold or right-click)
+8. **Mobile sidebar** — swipe-up sheet for summary panel on small screens
+9. **Favicon** — add `favicon.svg` using the brand dot
+
+## GitHub Push Snippet
 ```python
 from github import Github, Auth
-g = Github(auth=Auth.Token('YOUR_TOKEN'))
+g = Github(auth=Auth.Token('TOKEN'))
 repo = g.get_user().get_repo('Habit-Tracker')
-
-# Create new file
-repo.create_file('filename.ext', 'commit message', 'file content')
-
-# Update existing file
-existing = repo.get_contents('filename.ext')
-repo.update_file('filename.ext', 'commit message', 'new content', existing.sha)
+ex = repo.get_contents('filename')
+repo.update_file('filename', 'commit msg', open('filename').read(), ex.sha)
 ```
 
----
-
-## Current State (as of handoff)
-
-The app is fully functional:
-- Add, edit, delete habits with name, category, color, frequency
-- Mark habits done/undone per day  
-- 7-day streak dots on each card  
-- Streak counter with fire emoji  
-- Progress ring in topbar showing today's completion %  
-- Stats view with total habits, today's progress, best streak, total check-ins, and 70-day heatmap  
-- Responsive layout (sidebar hides on mobile)  
-- Modal with keyboard support (Enter = save, Esc = close)  
-- Motivational quote in sidebar (random on load)
-
----
-
-*Generated by Claude Sonnet 4.6 — June 10, 2026*
+*Handoff generated — June 10, 2026*
