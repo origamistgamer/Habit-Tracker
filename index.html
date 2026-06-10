@@ -1,123 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Habit Tracker</title>
+  <title>Streakr</title>
   <link rel="stylesheet" href="style.css"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 </head>
 <body>
-  <div class="app">
+  <div id="app">
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="brand">
-        <span class="brand-icon">◎</span>
-        <span class="brand-name">Streakr</span>
+    <!-- Top bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="logo">streakr</span>
+        <span class="month-label" id="monthLabel"></span>
       </div>
-      <nav class="nav">
-        <button class="nav-item active" data-view="today">
-          <span class="nav-icon">⊡</span> Today
-        </button>
-        <button class="nav-item" data-view="all">
-          <span class="nav-icon">≡</span> All Habits
-        </button>
-        <button class="nav-item" data-view="stats">
-          <span class="nav-icon">◈</span> Stats
-        </button>
-      </nav>
-      <div class="sidebar-footer">
-        <div class="quote" id="quote"></div>
+      <div class="topbar-right">
+        <button class="icon-btn" id="prevMonth" title="Previous month">‹</button>
+        <button class="icon-btn today-btn" id="goToday">today</button>
+        <button class="icon-btn" id="nextMonth" title="Next month">›</button>
+        <button class="add-btn" id="openAdd">+ habit</button>
       </div>
-    </aside>
+    </header>
 
-    <!-- Main -->
-    <main class="main">
+    <!-- Main grid area -->
+    <div class="workspace">
 
-      <!-- Header -->
-      <header class="topbar">
-        <div class="topbar-left">
-          <h1 class="page-title" id="pageTitle">Today</h1>
-          <p class="page-subtitle" id="pageSubtitle"></p>
+      <!-- Habit list + grid -->
+      <div class="grid-wrap" id="gridWrap">
+        <!-- Header row: day numbers -->
+        <div class="grid-header">
+          <div class="habit-label-col"></div>
+          <div class="days-row" id="daysRow"></div>
         </div>
-        <div class="topbar-right">
-          <div class="progress-ring-wrap" title="Today's completion">
-            <svg class="progress-ring" width="52" height="52">
-              <circle class="ring-bg" cx="26" cy="26" r="20"/>
-              <circle class="ring-fill" id="ringFill" cx="26" cy="26" r="20"/>
-            </svg>
-            <span class="ring-label" id="ringLabel">0%</span>
-          </div>
-          <button class="btn-add" id="btnAdd">+ New Habit</button>
-        </div>
-      </header>
 
-      <!-- Views -->
-      <section class="view active" id="view-today">
-        <div class="habits-grid" id="todayList">
-          <div class="empty-state" id="emptyToday">
-            <div class="empty-icon">◎</div>
-            <p>No habits yet. Add one to start your streak.</p>
+        <!-- Habit rows -->
+        <div class="habits-body" id="habitsBody">
+          <div class="empty-hint" id="emptyHint">
+            <p>No habits yet —</p>
+            <button onclick="document.getElementById('openAdd').click()">add your first one</button>
           </div>
         </div>
-      </section>
+      </div>
 
-      <section class="view" id="view-all">
-        <div class="habits-grid" id="allList"></div>
-      </section>
+      <!-- Right panel: summary -->
+      <aside class="summary-panel" id="summaryPanel">
+        <div class="summary-section">
+          <div class="summary-label">today</div>
+          <div class="summary-big" id="sumToday">0 / 0</div>
+        </div>
+        <div class="summary-section">
+          <div class="summary-label">best streak</div>
+          <div class="summary-big" id="sumStreak">0</div>
+        </div>
+        <div class="summary-section">
+          <div class="summary-label">this month</div>
+          <div class="summary-big" id="sumMonth">0%</div>
+        </div>
+        <div class="divider"></div>
+        <div class="legend-section" id="habitLegend"></div>
+      </aside>
 
-      <section class="view" id="view-stats">
-        <div class="stats-grid" id="statsGrid"></div>
-      </section>
-
-    </main>
+    </div>
   </div>
 
-  <!-- Add/Edit Modal -->
-  <div class="modal-overlay" id="modalOverlay">
-    <div class="modal">
-      <div class="modal-header">
-        <h2 id="modalTitle">New Habit</h2>
+  <!-- Modal -->
+  <div class="overlay" id="overlay">
+    <div class="modal" id="modal">
+      <div class="modal-top">
+        <span id="modalHeading">new habit</span>
         <button class="modal-close" id="modalClose">✕</button>
       </div>
-      <div class="modal-body">
-        <label>Habit Name
-          <input type="text" id="habitName" placeholder="e.g. Morning run" maxlength="40"/>
-        </label>
-        <label>Category
-          <select id="habitCategory">
-            <option value="health">🏃 Health</option>
-            <option value="mind">🧠 Mind</option>
-            <option value="work">💼 Work</option>
-            <option value="social">🤝 Social</option>
-            <option value="creative">🎨 Creative</option>
-            <option value="other">✦ Other</option>
-          </select>
-        </label>
-        <label>Goal (days/week)
-          <div class="freq-picker" id="freqPicker">
-            <button class="freq-btn active" data-val="7">Every day</button>
-            <button class="freq-btn" data-val="5">5×</button>
-            <button class="freq-btn" data-val="3">3×</button>
-            <button class="freq-btn" data-val="1">1×</button>
-          </div>
-        </label>
-        <label>Color
-          <div class="color-picker" id="colorPicker">
-            <button class="color-swatch active" data-color="#6C63FF" style="background:#6C63FF"></button>
-            <button class="color-swatch" data-color="#FF6584" style="background:#FF6584"></button>
-            <button class="color-swatch" data-color="#43C6AC" style="background:#43C6AC"></button>
-            <button class="color-swatch" data-color="#F9A825" style="background:#F9A825"></button>
-            <button class="color-swatch" data-color="#FF7043" style="background:#FF7043"></button>
-            <button class="color-swatch" data-color="#26C6DA" style="background:#26C6DA"></button>
-          </div>
-        </label>
+      <input class="modal-input" id="habitName" type="text" placeholder="Habit name…" maxlength="36" autocomplete="off"/>
+      <div class="modal-row">
+        <span class="field-label">color</span>
+        <div class="color-row" id="colorRow">
+          <button class="cswatch active" data-c="#A78BFA" style="--sc:#A78BFA"></button>
+          <button class="cswatch" data-c="#34D399" style="--sc:#34D399"></button>
+          <button class="cswatch" data-c="#60A5FA" style="--sc:#60A5FA"></button>
+          <button class="cswatch" data-c="#F472B6" style="--sc:#F472B6"></button>
+          <button class="cswatch" data-c="#FBBF24" style="--sc:#FBBF24"></button>
+          <button class="cswatch" data-c="#F87171" style="--sc:#F87171"></button>
+          <button class="cswatch" data-c="#2DD4BF" style="--sc:#2DD4BF"></button>
+        </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn-secondary" id="btnDelete" style="display:none">Delete</button>
-        <button class="btn-primary" id="btnSave">Save Habit</button>
+      <div class="modal-actions">
+        <button class="del-btn" id="delBtn" style="display:none">delete</button>
+        <button class="save-btn" id="saveBtn">save</button>
       </div>
     </div>
   </div>
