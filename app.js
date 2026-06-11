@@ -29,7 +29,7 @@ const HABIT_ICONS = [
 
 let habits = [];
 let view = 'today';
-let gridYear, gridMonth;
+let gridYear, gridMonth, gridMode = 'month', gridWeekStart;
 let editingId = null;
 let pickedColor = '#818cf8';
 let pickedIcon = 'run';
@@ -178,16 +178,29 @@ function renderToday() {
   const today = todayStr();
   const now = new Date();
 
-  // Date label
   document.getElementById('todayDateLabel').textContent =
     now.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
 
   const container = document.getElementById('todayHabits');
-  const emptyEl = document.getElementById('emptyToday');
   container.innerHTML = '';
 
   if (!habits.length) {
-    container.appendChild(emptyEl);
+    container.innerHTML = `<div class="empty-state" style="display:flex">
+      <div class="empty-card">
+        <div class="empty-graphic">
+          <svg viewBox="0 0 80 80" width="80" height="80" fill="none">
+            <circle cx="40" cy="40" r="36" stroke="rgba(255,255,255,0.04)" stroke-width="2"/>
+            <circle cx="28" cy="30" r="12" stroke="#818cf8" stroke-width="2" opacity=".5"/>
+            <circle cx="52" cy="30" r="12" stroke="#c084fc" stroke-width="2" opacity=".5"/>
+            <circle cx="40" cy="50" r="14" stroke="#a78bfa" stroke-width="2" opacity=".8"/>
+            <path d="M32 48l6 4 10-12" stroke="#818cf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".6"/>
+          </svg>
+        </div>
+        <h3>No habits yet</h3>
+        <p>Build routines that stick.<br>Start with one small habit today.</p>
+        <button class="cta-btn" onclick="document.getElementById('openAdd').click()">Add your first habit</button>
+      </div>
+    </div>`;
     document.getElementById('todaySummary').style.display = 'none';
     updateRing(0, 0);
     destroySortable();
@@ -240,7 +253,6 @@ function renderToday() {
   });
   if (typeof lucide !== 'undefined') lucide.createIcons();
 
-  // Summary
   const doneCount = habits.filter(h => !!h.log[today]).length;
   const leftCount = habits.length - doneCount;
   const bestStreak = habits.reduce((b,h) => Math.max(b, getStreak(h)), 0);
@@ -249,7 +261,6 @@ function renderToday() {
   document.getElementById('numStreak').textContent = bestStreak;
   updateRing(doneCount, habits.length);
 
-  // Re-init sortable
   initSortable();
   checkAndCelebrate();
 }
@@ -300,26 +311,61 @@ function destroySortable() {
 ══════════════════════════════════ */
 function daysInMonth(y,m) { return new Date(y, m+1, 0).getDate(); }
 
+function getMonday(d) {
+  const date = new Date(d);
+  const day = date.getDay();
+  date.setDate(date.getDate() - (day === 0 ? 6 : day - 1));
+  date.setHours(0,0,0,0);
+  return date;
+}
+
 function renderGrid() {
   const today = todayStr();
   const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  document.getElementById('gridMonthTitle').textContent = `${months[gridMonth]} ${gridYear}`;
+  const isWeek = gridMode === 'week';
 
-  const count = daysInMonth(gridYear, gridMonth);
-  const dates = Array.from({length:count}, (_,i) => {
-    const d = new Date(gridYear, gridMonth, i+1);
-    return { str: fmtDate(d), day: i+1, dow: d.getDay() };
-  });
+  document.querySelector('#view-grid .view-eyebrow').textContent = isWeek ? 'weekly view' : 'monthly view';
+
+  let dates;
+  if (isWeek) {
+    dates = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(gridWeekStart);
+      d.setDate(d.getDate() + i);
+      dates.push({ str: fmtDate(d), date: d, day: d.getDate(), dow: d.getDay() });
+    }
+    const start = dates[0].date;
+    const end = dates[6].date;
+    const fmt = (d) => d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+    if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+      document.getElementById('gridMonthTitle').textContent = `${fmt(start)} – ${end.getDate()}, ${end.getFullYear()}`;
+    } else {
+      document.getElementById('gridMonthTitle').textContent = `${fmt(start)} – ${fmt(end)}, ${end.getFullYear()}`;
+    }
+  } else {
+    const count = daysInMonth(gridYear, gridMonth);
+    dates = Array.from({length:count}, (_,i) => {
+      const d = new Date(gridYear, gridMonth, i+1);
+      return { str: fmtDate(d), date: d, day: i+1, dow: d.getDay() };
+    });
+    document.getElementById('gridMonthTitle').textContent = `${months[gridMonth]} ${gridYear}`;
+  }
 
   // Day headers
   const hdrs = document.getElementById('gridDayHeaders');
   hdrs.innerHTML = '';
-  dates.forEach(({str, day, dow}) => {
+  dates.forEach(({str, date, day, dow}) => {
     const el = document.createElement('div');
-    el.className = 'grid-day-h' +
+    let cls = 'grid-day-h' +
       (str === today ? ' is-today' : '') +
       (dow === 0 || dow === 6 ? ' is-weekend' : '');
-    el.textContent = day;
+    if (isWeek) cls += ' is-week-mode';
+    el.className = cls;
+    if (isWeek) {
+      el.innerHTML = `<span class="gd-weekday">${date.toLocaleDateString('en-US',{weekday:'short'})}</span><span class="gd-daynum">${day}</span>`;
+    } else {
+      el.textContent = day;
+    }
     hdrs.appendChild(el);
   });
 
@@ -344,12 +390,14 @@ function renderGrid() {
   habits.forEach(h => {
     const row = document.createElement('div');
     row.className = 'grid-habit-row';
+    if (isWeek) row.classList.add('grid-habit-row-week');
     dates.forEach(({str}) => {
       const isFuture = str > today;
       const isDone = !!h.log[str];
       const isToday = str === today;
       const dot = document.createElement('div');
       let cls = 'grid-dot';
+      if (isWeek) cls += ' gd-week';
       const streakLen = isDone ? Math.min(getStreakAtDate(h, str), 14) : 0;
       if (isDone) cls += ' gd-done';
       if (isToday) cls += ' gd-today';
@@ -583,6 +631,7 @@ async function init() {
   const now = new Date();
   gridYear = now.getFullYear();
   gridMonth = now.getMonth();
+  gridWeekStart = getMonday(now);
 
   // Inject SVG gradient defs
   document.body.insertAdjacentHTML('beforeend', `
@@ -602,15 +651,43 @@ async function init() {
   // Add btn (sidebar)
   document.getElementById('openAdd').addEventListener('click', () => openModal());
 
-  // Month nav
+  // Grid nav — mode-aware
   document.getElementById('prevMonth').addEventListener('click', () => {
-    gridMonth--; if (gridMonth < 0) { gridMonth = 11; gridYear--; } render();
+    if (gridMode === 'week') {
+      gridWeekStart.setDate(gridWeekStart.getDate() - 7);
+    } else {
+      gridMonth--; if (gridMonth < 0) { gridMonth = 11; gridYear--; }
+    }
+    render();
   });
   document.getElementById('nextMonth').addEventListener('click', () => {
-    gridMonth++; if (gridMonth > 11) { gridMonth = 0; gridYear++; } render();
+    if (gridMode === 'week') {
+      gridWeekStart.setDate(gridWeekStart.getDate() + 7);
+    } else {
+      gridMonth++; if (gridMonth > 11) { gridMonth = 0; gridYear++; }
+    }
+    render();
   });
   document.getElementById('goToday').addEventListener('click', () => {
-    const n = new Date(); gridYear = n.getFullYear(); gridMonth = n.getMonth(); render();
+    const n = new Date();
+    if (gridMode === 'week') {
+      gridWeekStart = getMonday(n);
+    } else {
+      gridYear = n.getFullYear(); gridMonth = n.getMonth();
+    }
+    render();
+  });
+
+  // Grid toggle
+  document.getElementById('gridToggle').addEventListener('click', () => {
+    gridMode = gridMode === 'week' ? 'month' : 'week';
+    const btn = document.getElementById('gridToggle');
+    btn.textContent = gridMode === 'week' ? 'month' : 'week';
+    btn.classList.toggle('active', gridMode === 'week');
+    if (gridMode === 'week') {
+      gridWeekStart = getMonday(new Date());
+    }
+    render();
   });
 
   // Modal
