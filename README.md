@@ -2,6 +2,8 @@
 
 Streakr is a privacy-friendly, offline-capable habit tracker built with vanilla HTML, CSS, and JavaScript. Track daily habits, view streaks on a calendar, and export your data as JSON — no account required.
 
+Website Link:- https://habit-tracker2-xi.vercel.app/
+
 ## Features
 
 - **Today view** — card grid with check-offs, streak counters, and 7-day completion pips
