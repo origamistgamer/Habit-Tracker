@@ -7,7 +7,7 @@
   <meta name="description" content="Streakr - Habit Tracker. Build daily routines, track streaks, and visualize your progress."/>
   <meta name="theme-color" content="#0c0c0e"/>
   <link rel="manifest" href="manifest.json"/>
-  <link rel="stylesheet" href="style.css?v=6"/>
+  <link rel="stylesheet" href="style.css?v=7"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
@@ -28,25 +28,30 @@
         </defs>
         <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" stroke="url(#logoGrad)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      <span>Streakr - Habit Tracker</span>
+      <span data-i18n="sidebar.logo">Streakr - Habit Tracker</span>
     </div>
     <div class="sidebar-nav">
       <button class="nav-btn active" data-view="today">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        Today
+        <span data-i18n="sidebar.today">Today</span>
       </button>
       <button class="nav-btn" data-view="grid">
         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" fill="currentColor" opacity=".7"/><rect x="14" y="3" width="7" height="7" rx="1.5" fill="currentColor" opacity=".4"/><rect x="3" y="14" width="7" height="7" rx="1.5" fill="currentColor" opacity=".4"/><rect x="14" y="14" width="7" height="7" rx="1.5" fill="currentColor" opacity=".7"/></svg>
-        Calendar
+        <span data-i18n="sidebar.calendar">Calendar</span>
       </button>
       <button class="nav-btn" data-view="stats">
         <svg viewBox="0 0 24 24"><path d="M3 20h18M7 10v10M12 4v16M17 7v13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        Stats
+        <span data-i18n="sidebar.stats">Stats</span>
       </button>
     </div>
     <div class="sidebar-footer">
+      <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="hi">हि</button>
+        <button class="lang-btn" data-lang="te">తె</button>
+      </div>
       <button class="add-habit-btn" id="openAdd">
-        <span>+</span> New Habit
+        <span>+</span> <span data-i18n="sidebar.add">New Habit</span>
       </button>
     </div>
   </nav>
@@ -64,28 +69,35 @@
             </svg>
             <span>Streakr - Habit Tracker</span>
           </div>
-          <button class="landing-nav-btn" onclick="setView('today')">Go to Dashboard</button>
+          <div class="landing-lang-row">
+            <button class="landing-nav-btn" onclick="setView('today')" data-i18n="landing.dashboard">Go to Dashboard</button>
+            <div class="lang-switcher landing-lang">
+              <button class="lang-btn active" data-lang="en">EN</button>
+              <button class="lang-btn" data-lang="hi">हि</button>
+              <button class="lang-btn" data-lang="te">తె</button>
+            </div>
+          </div>
         </header>
 
         <div class="landing-hero">
-          <h1 class="hero-title">Build habits that stick.<br><span class="gradient-text">Beautifully.</span></h1>
-          <p class="hero-subtitle">A minimal, desktop-first habit tracker designed to help you stay consistent without the clutter.</p>
+          <h1 class="hero-title" data-i18n-html="landing.hero.title">Build habits that stick.<br><span class="gradient-text">Beautifully.</span></h1>
+          <p class="hero-subtitle" data-i18n="landing.hero.subtitle">A minimal, desktop-first habit tracker designed to help you stay consistent without the clutter.</p>
           
           <div class="hero-cta-group">
-            <button class="hero-cta-btn" onclick="setView('today')">Launch Tracker</button>
+            <button class="hero-cta-btn" onclick="setView('today')" data-i18n="landing.cta">Launch Tracker</button>
           </div>
 
           <!-- Live Interactive Preview inside Hero -->
           <div class="landing-preview-card">
             <div class="preview-card-header">
               <div class="preview-card-emoji"><i data-lucide="person-standing" class="preview-lucide-icon"></i></div>
-              <div class="preview-card-title">Mindfulness Practice</div>
+              <div class="preview-card-title" data-i18n="landing.preview.title">Mindfulness Practice</div>
             </div>
             <div class="preview-card-body">
-              <p>Achieve state of calm and focus daily.</p>
+              <p data-i18n="landing.preview.body">Achieve state of calm and focus daily.</p>
               <div class="preview-streak-demo">
                 <span class="preview-streak-fire">🔥</span>
-                <span class="preview-streak-count">12 day streak</span>
+                <span class="preview-streak-count" data-i18n="landing.preview.streak">12 day streak</span>
               </div>
             </div>
             <div class="preview-card-dots">
@@ -103,23 +115,23 @@
         <div class="landing-features">
           <div class="feature-card">
             <div class="feature-icon">💻</div>
-            <h3>Laptop-First Layout</h3>
-            <p>Designed specifically for desktop and laptop displays to give you a rich, productive dashboard.</p>
+            <h3 data-i18n="landing.feature1.title">Laptop-First Layout</h3>
+            <p data-i18n="landing.feature1.body">Designed specifically for desktop and laptop displays to give you a rich, productive dashboard.</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon">📊</div>
-            <h3>Dual Streak Analytics</h3>
-            <p>Track both your current momentum and your all-time best streaks dynamically.</p>
+            <h3 data-i18n="landing.feature2.title">Dual Streak Analytics</h3>
+            <p data-i18n="landing.feature2.body">Track both your current momentum and your all-time best streaks dynamically.</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon">🗓️</div>
-            <h3>Interactive Month Grid</h3>
-            <p>A beautiful grid layout showing a bird's-eye view of your habits across the calendar.</p>
+            <h3 data-i18n="landing.feature3.title">Interactive Month Grid</h3>
+            <p data-i18n="landing.feature3.body">A beautiful grid layout showing a bird's-eye view of your habits across the calendar.</p>
           </div>
         </div>
 
         <footer class="landing-footer-banner">
-          <p>© 2026 Streakr - Habit Tracker. Beautiful habits, made simple.</p>
+          <p data-i18n="landing.footer">© 2026 Streakr - Habit Tracker. Beautiful habits, made simple.</p>
         </footer>
       </div>
     </section>
@@ -148,15 +160,15 @@
       <div class="today-summary" id="todaySummary" style="display:none">
         <div class="summary-chip" id="chipDone">
           <span class="chip-num" id="numDone">0</span>
-          <span class="chip-label">done</span>
+          <span class="chip-label" data-i18n="today.summary.done">done</span>
         </div>
         <div class="summary-chip" id="chipLeft">
           <span class="chip-num" id="numLeft">0</span>
-          <span class="chip-label">left</span>
+          <span class="chip-label" data-i18n="today.summary.left">left</span>
         </div>
         <div class="summary-chip">
           <span class="chip-num" id="numStreak">0</span>
-          <span class="chip-label">🔥 streak</span>
+          <span class="chip-label" data-i18n="today.summary.streak">🔥 streak</span>
         </div>
       </div>
     </section>
@@ -165,13 +177,13 @@
     <section class="view" id="view-grid">
       <div class="view-header">
         <div>
-          <div class="view-eyebrow">monthly view</div>
+          <div class="view-eyebrow" data-i18n="grid.monthly">monthly view</div>
           <h1 class="view-title" id="gridMonthTitle">June 2026</h1>
         </div>
         <div class="header-right month-nav">
           <button class="icon-btn ghost-btn" id="gridToggle">week</button>
           <button class="icon-btn" id="prevMonth">‹</button>
-          <button class="icon-btn ghost-btn" id="goToday">today</button>
+          <button class="icon-btn ghost-btn" id="goToday" data-i18n="grid.today">today</button>
           <button class="icon-btn" id="nextMonth">›</button>
         </div>
       </div>
@@ -192,7 +204,7 @@
     <section class="view" id="view-stats">
       <div class="view-header">
         <div>
-          <div class="view-eyebrow">your progress</div>
+          <div class="view-eyebrow" data-i18n="stats.eyebrow">your progress</div>
           <h1 class="view-title">Statistics</h1>
         </div>
       </div>
@@ -213,17 +225,17 @@
     </div>
 
     <div class="modal-field">
-      <label>Name</label>
-      <input id="habitName" type="text" placeholder="e.g. Morning run, Read 20 mins…" maxlength="40" autocomplete="off"/>
+      <label data-i18n="modal.name">Name</label>
+      <input id="habitName" type="text" data-i18n-placeholder="modal.placeholder" placeholder="e.g. Morning run, Read 20 mins…" maxlength="40" autocomplete="off"/>
     </div>
 
     <div class="modal-field">
-      <label>Icon</label>
+      <label data-i18n="modal.icon">Icon</label>
       <div class="emoji-grid" id="emojiGrid"></div>
     </div>
 
     <div class="modal-field">
-      <label>Color</label>
+      <label data-i18n="modal.color">Color</label>
       <div class="color-grid" id="colorGrid">
         <button class="cswatch active" data-c="#818cf8" style="--sc:#818cf8"></button>
         <button class="cswatch" data-c="#34d399" style="--sc:#34d399"></button>
@@ -237,12 +249,13 @@
     </div>
 
     <div class="modal-actions">
-      <button class="del-btn" id="delBtn" style="display:none">Delete habit</button>
-      <button class="save-btn" id="saveBtn">Save</button>
+      <button class="del-btn" id="delBtn" style="display:none" data-i18n="modal.delete">Delete habit</button>
+      <button class="save-btn" id="saveBtn" data-i18n="modal.save">Save</button>
     </div>
   </div>
 </div>
 
-<script src="app.js?v=7"></script>
+<script src="translations.js"></script>
+<script src="app.js?v=8"></script>
 </body>
 </html>

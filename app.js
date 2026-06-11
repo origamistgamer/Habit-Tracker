@@ -36,6 +36,43 @@ let pickedIcon = 'run';
 let sortableInstance = null;
 let lastAllDone = false; // prevent repeat confetti
 
+/* ── i18n ── */
+let currentLang = localStorage.getItem('streakr_lang') || 'en';
+
+function t(key, vars = {}) {
+  let str = (translations[currentLang] && translations[currentLang][key]) ||
+            (translations['en'] && translations['en'][key]) || key;
+  Object.entries(vars).forEach(([k, v]) => { str = str.replace(new RegExp('\\{\\{' + k + '\\}\\}', 'g'), v); });
+  return str;
+}
+
+function setLang(code) {
+  currentLang = code;
+  localStorage.setItem('streakr_lang', code);
+  document.documentElement.lang = code;
+  translatePage();
+  render();
+  if (view === 'grid') { renderGrid(); }
+  // Update lang switcher buttons
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === code));
+}
+
+function translatePage() {
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); });
+  document.querySelectorAll('[data-i18n-confirm]').forEach(el => {
+    const key = el.dataset.i18nConfirm;
+    const orig = el.getAttribute('onclick') || '';
+    if (orig.includes('confirm(')) {
+      el.setAttribute('onclick', orig.replace(/confirm\('[^']*'\)/, `confirm('${t(key).replace(/'/g, "\\'")}')`));
+    }
+  });
+}
+
+function getLocale() { return LOCALE_MAP[currentLang] || 'en-US'; }
+
 function getIconData(h) {
   const icon = h.icon ? HABIT_ICONS.find(i => i.id === h.icon) : null;
   return icon || { emoji: h.emoji || '🏃', lucide: null };
@@ -179,7 +216,7 @@ function renderToday() {
   const now = new Date();
 
   document.getElementById('todayDateLabel').textContent =
-    now.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+    now.toLocaleDateString(getLocale(), { weekday:'long', month:'long', day:'numeric', year:'numeric' });
 
   const container = document.getElementById('todayHabits');
   container.innerHTML = '';
@@ -196,9 +233,9 @@ function renderToday() {
             <path d="M32 48l6 4 10-12" stroke="#818cf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".6"/>
           </svg>
         </div>
-        <h3>No habits yet</h3>
-        <p>Build routines that stick.<br>Start with one small habit today.</p>
-        <button class="cta-btn" onclick="document.getElementById('openAdd').click()">Add your first habit</button>
+        <h3>${t('today.empty.title')}</h3>
+        <p>${t('today.empty.body')}</p>
+        <button class="cta-btn" onclick="document.getElementById('openAdd').click()">${t('today.empty.cta')}</button>
       </div>
     </div>`;
     document.getElementById('todaySummary').style.display = 'none';
@@ -226,16 +263,16 @@ function renderToday() {
     ).join('');
 
     card.innerHTML = `
-      <div class="drag-handle" title="Drag to reorder">⠿</div>
+      <div class="drag-handle" title="${t('today.drag_hint')}">⠿</div>
       <div class="card-top">
         <div class="card-icon-tile">${icon.lucide ? `<i data-lucide="${icon.lucide}" class="card-lucide-icon"></i>` : icon.emoji}</div>
         <button class="check-circle" data-id="${h.id}">${done ? '✓' : ''}</button>
       </div>
       <div class="card-name">${h.name}</div>
-      ${missed >= 2 ? '<div class="skip-warning">⚠️ Don\'t skip twice — keep the chain alive</div>' : ''}
+      ${missed >= 2 ? `<div class="skip-warning">${t('today.skip_warning')}</div>` : ''}
       <div class="card-footer">
         <div class="streak-pill${streak >= 3 ? ' hot' : ''}">
-          <span class="fire">🔥</span> ${streak} day${streak !== 1 ? 's' : ''}
+          ${streak === 1 ? t('today.streak',{count:streak}) : t('today.streak_plural',{count:streak})}
         </div>
         <div class="week-track">${pipsHtml}</div>
       </div>
@@ -321,10 +358,11 @@ function getMonday(d) {
 
 function renderGrid() {
   const today = todayStr();
-  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const months = [t('grid.month_jan'),t('grid.month_feb'),t('grid.month_mar'),t('grid.month_apr'),t('grid.month_may'),t('grid.month_jun'),t('grid.month_jul'),t('grid.month_aug'),t('grid.month_sep'),t('grid.month_oct'),t('grid.month_nov'),t('grid.month_dec')];
   const isWeek = gridMode === 'week';
 
-  document.querySelector('#view-grid .view-eyebrow').textContent = isWeek ? 'weekly view' : 'monthly view';
+  document.querySelector('#view-grid .view-eyebrow').textContent = isWeek ? t('grid.weekly') : t('grid.monthly');
+  document.getElementById('gridToggle').textContent = isWeek ? t('grid.toggle_month') : t('grid.toggle_week');
 
   let dates;
   if (isWeek) {
@@ -336,7 +374,7 @@ function renderGrid() {
     }
     const start = dates[0].date;
     const end = dates[6].date;
-    const fmt = (d) => d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+    const fmt = (d) => d.toLocaleDateString(getLocale(), { month:'short', day:'numeric' });
     if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
       document.getElementById('gridMonthTitle').textContent = `${fmt(start)} – ${end.getDate()}, ${end.getFullYear()}`;
     } else {
@@ -362,7 +400,7 @@ function renderGrid() {
     if (isWeek) cls += ' is-week-mode';
     el.className = cls;
     if (isWeek) {
-      el.innerHTML = `<span class="gd-weekday">${date.toLocaleDateString('en-US',{weekday:'short'})}</span><span class="gd-daynum">${day}</span>`;
+      el.innerHTML = `<span class="gd-weekday">${date.toLocaleDateString(getLocale(),{weekday:'short'})}</span><span class="gd-daynum">${day}</span>`;
     } else {
       el.textContent = day;
     }
@@ -415,7 +453,7 @@ function renderGrid() {
   });
 
   if (!habits.length) {
-    labels.innerHTML = '<div style="padding:20px 8px;color:var(--text3);font-size:13px;">No habits yet</div>';
+    labels.innerHTML = `<div style="padding:20px 8px;color:var(--text3);font-size:13px;">${t('grid.no_habits')}</div>`;
   }
 }
 
@@ -435,11 +473,12 @@ function renderStats() {
   // Top tiles
   const topRow = document.createElement('div');
   topRow.className = 'stats-top-row';
+  const th = (k) => t(k);
   [
-    { label: 'Habits', val: totalHabits, sub: 'being tracked' },
-    { label: 'Done Today', val: `${doneToday}/${totalHabits}`, sub: 'completed' },
-    { label: 'Best Streak', val: bestStreak, sub: 'days in a row' },
-    { label: 'Total', val: totalCheckins, sub: 'all-time check-ins' },
+    { label: th('stats.habits'), val: totalHabits, sub: th('stats.tracking') },
+    { label: th('stats.done_today'), val: `${doneToday}/${totalHabits}`, sub: th('stats.completed') },
+    { label: th('stats.best_streak'), val: bestStreak, sub: th('stats.days_row') },
+    { label: th('stats.total'), val: totalCheckins, sub: th('stats.checkins') },
   ].forEach(t => {
     topRow.innerHTML += `
       <div class="stat-tile">
@@ -477,12 +516,12 @@ function renderStats() {
         </div>
         <div class="shr-nums">
           <div class="shr-streak" style="color:${h.color}">
-            <span class="shr-streak-val">${curStreak}</span><span class="shr-streak-label">current</span>
+            <span class="shr-streak-val">${curStreak}</span><span class="shr-streak-label">${t('stats.current')}</span>
             <span class="shr-streak-sep">|</span>
-            <span class="shr-streak-val">${bstStreak}</span><span class="shr-streak-label">best</span>
+            <span class="shr-streak-val">${bstStreak}</span><span class="shr-streak-label">${t('stats.best')}</span>
             <span class="shr-streak-fire">🔥</span>
           </div>
-          <div class="shr-days">${pct}% / 30d</div>
+          <div class="shr-days">${t('stats.pct_30d', {pct})}</div>
         </div>
       `;
       row.addEventListener('click', () => openModal(h.id));
@@ -495,12 +534,12 @@ function renderStats() {
   // Heatmap — 7-day-week grid
   const hmSection = document.createElement('div');
   hmSection.className = 'heatmap-section';
-  hmSection.innerHTML = `<div class="heatmap-title">Activity — last 84 days</div><div class="heatmap-grid" id="hmGrid"></div>`;
+  hmSection.innerHTML = `<div class="heatmap-title">${t('stats.heatmap')}</div><div class="heatmap-grid" id="hmGrid"></div>`;
   content.appendChild(hmSection);
   setTimeout(() => {
     const grid = document.getElementById('hmGrid');
     if (!grid) return;
-    const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const DAYS = [t('stats.day_sun'),t('stats.day_mon'),t('stats.day_tue'),t('stats.day_wed'),t('stats.day_thu'),t('stats.day_fri'),t('stats.day_sat')];
     const allDays = [];
     for (let i = 83; i >= 0; i--) {
       const d = new Date(); d.setDate(d.getDate()-i);
@@ -519,7 +558,7 @@ function renderStats() {
         const cell = document.createElement('div');
         const lvl = d.count === 0 ? '' : d.count === 1 ? 'l1' : d.count === 2 ? 'l2' : d.count <= 3 ? 'l3' : 'l4';
         cell.className = 'hm-cell ' + lvl;
-        cell.title = `${d.key}: ${d.count} habit${d.count!==1?'s':''}`;
+        cell.title = d.count === 1 ? t('stats.cell_title',{date:d.key,count:d.count}) : t('stats.cell_title_plural',{date:d.key,count:d.count});
         row.appendChild(cell);
       });
       grid.appendChild(row);
@@ -539,7 +578,7 @@ function renderEmojiGrid(selectedId) {
   cats.forEach(cat => {
     const label = document.createElement('div');
     label.className = 'emoji-cat';
-    label.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+    label.textContent = t('modal.cat_' + cat);
     grid.appendChild(label);
     const wrap = document.createElement('div');
     wrap.className = 'emoji-row';
@@ -548,7 +587,7 @@ function renderEmojiGrid(selectedId) {
       btn.className = 'icon-tile' + (icon.id === selectedId ? ' active' : '');
       btn.dataset.icon = icon.id;
       btn.style.setProperty('--ic', pickedColor);
-      btn.innerHTML = `<i data-lucide="${icon.lucide}" class="picker-lucide-icon"></i><span class="eb-label">${icon.label}</span>`;
+      btn.innerHTML = `<i data-lucide="${icon.lucide}" class="picker-lucide-icon"></i><span class="eb-label">${t('icon.' + icon.id)}</span>`;
       btn.addEventListener('click', () => {
         pickedIcon = icon.id;
         document.querySelectorAll('.icon-tile').forEach(b => b.classList.remove('active'));
@@ -564,7 +603,7 @@ function renderEmojiGrid(selectedId) {
 function openModal(id = null) {
   editingId = id;
   const h = id ? habits.find(x => x.id === id) : null;
-  document.getElementById('modalTitle').textContent = h ? 'Edit Habit' : 'New Habit';
+  document.getElementById('modalTitle').textContent = h ? t('modal.edit') : t('modal.new');
   document.getElementById('habitName').value = h ? h.name : '';
   document.getElementById('delBtn').style.display = h ? 'inline-flex' : 'none';
 
@@ -596,7 +635,7 @@ function saveHabit() {
 }
 
 function deleteHabit() {
-  if (!editingId || !confirm('Delete this habit and all its data?')) return;
+  if (!editingId || !confirm(t('modal.confirm_delete'))) return;
   habits = habits.filter(h => h.id !== editingId);
   saveHabits(); closeModal();
   if (!habits.length) setView('landing');
@@ -648,6 +687,10 @@ async function init() {
   document.querySelectorAll('.nav-btn').forEach(b =>
     b.addEventListener('click', () => setView(b.dataset.view)));
 
+  // Language switcher
+  document.querySelectorAll('.lang-btn').forEach(b =>
+    b.addEventListener('click', () => setLang(b.dataset.lang)));
+
   // Add btn (sidebar)
   document.getElementById('openAdd').addEventListener('click', () => openModal());
 
@@ -682,7 +725,7 @@ async function init() {
   document.getElementById('gridToggle').addEventListener('click', () => {
     gridMode = gridMode === 'week' ? 'month' : 'week';
     const btn = document.getElementById('gridToggle');
-    btn.textContent = gridMode === 'week' ? 'month' : 'week';
+    btn.textContent = gridMode === 'week' ? t('grid.toggle_month') : t('grid.toggle_week');
     btn.classList.toggle('active', gridMode === 'week');
     if (gridMode === 'week') {
       gridWeekStart = getMonday(new Date());
@@ -711,8 +754,14 @@ async function init() {
     navigator.serviceWorker.register('/sw.js').catch(err => console.warn('SW:', err));
   }
 
+  // Init language
+  document.documentElement.lang = currentLang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === currentLang));
+
   // Go to correct view
   setView(view);
+  // Translate static HTML
+  translatePage();
   // Init Lucide icons (for landing page static HTML)
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
