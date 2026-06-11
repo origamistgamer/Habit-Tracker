@@ -14,10 +14,28 @@ let sortableInstance = null;
 let lastAllDone = false; // prevent repeat confetti
 
 /* ── Storage ── */
-function loadHabits() {
+async function loadHabits() {
+  // localStorage is the primary store — preserves existing data
   try { habits = JSON.parse(localStorage.getItem(STORE)) || []; } catch { habits = []; }
+  // Sync from server only if localStorage was empty (e.g. first time on a new device)
+  if (!habits.length) {
+    try {
+      const res = await fetch('/api/habits');
+      if (res.ok) {
+        habits = await res.json();
+        localStorage.setItem(STORE, JSON.stringify(habits));
+      }
+    } catch {}
+  }
 }
-function saveHabits() { localStorage.setItem(STORE, JSON.stringify(habits)); }
+function saveHabits() {
+  localStorage.setItem(STORE, JSON.stringify(habits));
+  fetch('/api/habits', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(habits)
+  }).catch(() => {});
+}
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 function todayStr() { return fmtDate(new Date()); }
 function fmtDate(d) {
@@ -68,6 +86,13 @@ function getWeekLog(h) {
   });
 }
 
+/* ── Streak at any given date (for grid intensity) ── */
+function getStreakAtDate(h, dateStr) {
+  let s = 0, d = new Date(dateStr + 'T00:00:00');
+  while (h.log[fmtDate(d)]) { s++; d.setDate(d.getDate()-1); }
+  return s;
+}
+
 /* ══════════════════════════════════
    CONFETTI
 ══════════════════════════════════ */
@@ -107,7 +132,7 @@ function checkAndCelebrate() {
 function render() {
   if (view === 'today') renderToday();
   else if (view === 'grid') renderGrid();
-  else renderStats();
+  else if (view === 'stats') renderStats();
 }
 
 /* ══════════════════════════════════
@@ -122,9 +147,8 @@ function renderToday() {
     now.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
 
   const container = document.getElementById('todayHabits');
-  container.innerHTML = '';
-
   const emptyEl = document.getElementById('emptyToday');
+  container.innerHTML = '';
 
   if (!habits.length) {
     container.appendChild(emptyEl);
@@ -282,11 +306,17 @@ function renderGrid() {
       const isDone = !!h.log[str];
       const isToday = str === today;
       const dot = document.createElement('div');
-      dot.className = 'grid-dot' +
-        (isDone ? ' gd-done' : '') +
-        (isToday ? ' gd-today' : '') +
-        (isFuture ? ' gd-future' : '');
-      if (isDone) { dot.style.setProperty('--dot-color', h.color); }
+      let cls = 'grid-dot';
+      const streakLen = isDone ? Math.min(getStreakAtDate(h, str), 14) : 0;
+      if (isDone) cls += ' gd-done';
+      if (isToday) cls += ' gd-today';
+      if (isFuture) cls += ' gd-future';
+      dot.className = cls;
+      if (isDone) {
+        const intensity = 0.15 + streakLen * 0.06;
+        dot.style.setProperty('--dot-color', h.color);
+        dot.style.setProperty('--dot-intensity', intensity);
+      }
       if (!isFuture) dot.addEventListener('click', () => toggleDay(h.id, str));
       row.appendChild(dot);
     });
@@ -369,7 +399,7 @@ function renderStats() {
     content.appendChild(listWrap);
   }
 
-  // Heatmap
+  // Heatmap — 7-day-week grid
   const hmSection = document.createElement('div');
   hmSection.className = 'heatmap-section';
   hmSection.innerHTML = `<div class="heatmap-title">Activity — last 84 days</div><div class="heatmap-grid" id="hmGrid"></div>`;
@@ -377,15 +407,29 @@ function renderStats() {
   setTimeout(() => {
     const grid = document.getElementById('hmGrid');
     if (!grid) return;
+    const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const allDays = [];
     for (let i = 83; i >= 0; i--) {
       const d = new Date(); d.setDate(d.getDate()-i);
       const key = fmtDate(d);
       const count = habits.filter(h => h.log[key]).length;
-      const lvl = count === 0 ? '' : count === 1 ? 'l1' : count === 2 ? 'l2' : count <= 3 ? 'l3' : 'l4';
-      const cell = document.createElement('div');
-      cell.className = 'hm-cell ' + lvl;
-      cell.title = `${key}: ${count} habit${count!==1?'s':''}`;
-      grid.appendChild(cell);
+      allDays.push({ key, count, dow: d.getDay() });
+    }
+    for (let dow = 0; dow < 7; dow++) {
+      const row = document.createElement('div');
+      row.className = 'hm-week-row';
+      const label = document.createElement('span');
+      label.className = 'hm-dow-label';
+      label.textContent = DAYS[dow];
+      row.appendChild(label);
+      allDays.filter(d => d.dow === dow).forEach(d => {
+        const cell = document.createElement('div');
+        const lvl = d.count === 0 ? '' : d.count === 1 ? 'l1' : d.count === 2 ? 'l2' : d.count <= 3 ? 'l3' : 'l4';
+        cell.className = 'hm-cell ' + lvl;
+        cell.title = `${d.key}: ${d.count} habit${d.count!==1?'s':''}`;
+        row.appendChild(cell);
+      });
+      grid.appendChild(row);
     }
   }, 0);
 }
@@ -442,6 +486,7 @@ function deleteHabit() {
 ══════════════════════════════════ */
 function setView(v) {
   view = v;
+  document.body.classList.toggle('landing-mode', v === 'landing');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
   document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
   document.getElementById('view-' + v).classList.add('active');
@@ -451,8 +496,8 @@ function setView(v) {
 /* ══════════════════════════════════
    INIT
 ══════════════════════════════════ */
-function init() {
-  loadHabits();
+async function init() {
+  await loadHabits();
   
   // Dynamic default view based on habit availability
   if (habits.length === 0) {

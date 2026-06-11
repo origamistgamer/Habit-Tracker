@@ -143,10 +143,20 @@
 
       <div class="today-habits" id="todayHabits">
         <div class="empty-state" id="emptyToday">
-          <div class="empty-emoji">🌱</div>
-          <h3>No habits yet</h3>
-          <p>Start building routines that stick.</p>
-          <button class="cta-btn" onclick="document.getElementById('openAdd').click()">Add your first habit</button>
+          <div class="empty-card">
+            <div class="empty-graphic">
+              <svg viewBox="0 0 80 80" width="80" height="80" fill="none">
+                <circle cx="40" cy="40" r="36" stroke="rgba(255,255,255,0.04)" stroke-width="2"/>
+                <circle cx="28" cy="30" r="12" stroke="#818cf8" stroke-width="2" opacity=".5"/>
+                <circle cx="52" cy="30" r="12" stroke="#c084fc" stroke-width="2" opacity=".5"/>
+                <circle cx="40" cy="50" r="14" stroke="#a78bfa" stroke-width="2" opacity=".8"/>
+                <path d="M32 48l6 4 10-12" stroke="#818cf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".6"/>
+              </svg>
+            </div>
+            <h3>No habits yet</h3>
+            <p>Build routines that stick.<br>Start with one small habit today.</p>
+            <button class="cta-btn" onclick="document.getElementById('openAdd').click()">Add your first habit</button>
+          </div>
         </div>
       </div>
 

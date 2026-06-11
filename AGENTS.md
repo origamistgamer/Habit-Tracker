@@ -31,7 +31,6 @@ sw.js               Cache-first assets, network-first navigation
 | `getBestStreak(h)` | Longest historical run |
 | `getWeekLog(h)` | Last 7 days for week pips |
 | `toggleDay(id, date)` | Toggle completion + save |
-| `exportHabits()` / `importHabits(file)` | JSON backup |
 | `checkAndCelebrate()` | Confetti when all done |
 
 ## Agent Workflow

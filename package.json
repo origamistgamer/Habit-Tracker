@@ -1,22 +1,24 @@
 {
-  "name": "streakr",
-  "version": "4.0.0",
-  "description": "Streakr - Habit Tracker PWA",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "lint": "biome lint app.js && eslint app.js",
-    "lint:biome": "biome lint app.js",
-    "lint:eslint": "eslint app.js",
-    "knip": "knip"
-  },
-  "keywords": ["habits", "tracker", "pwa", "streaks"],
-  "author": "origamistgamer",
-  "license": "AGPL-3.0-or-later",
-  "devDependencies": {
-    "@biomejs/biome": "^2.4.16",
-    "@eslint/js": "^9.28.0",
-    "eslint": "^9.28.0",
-    "knip": "^5.61.0"
-  }
+	"name": "streakr",
+	"version": "4.0.0",
+	"description": "Streakr - Habit Tracker PWA",
+	"private": true,
+	"scripts": {
+		"start": "node server.js",
+		"dev": "node server.js",
+		"lint": "biome lint .",
+		"lint:fix": "biome check . --write",
+		"knip": "knip",
+		"audit": "npm audit"
+	},
+	"keywords": ["habits", "tracker", "pwa", "streaks"],
+	"author": "origamistgamer",
+	"license": "AGPL-3.0-or-later",
+	"dependencies": {
+		"express": "^4.21.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.16",
+		"knip": "^5.61.0"
+	}
 }
