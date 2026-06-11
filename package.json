@@ -4,7 +4,6 @@
 	"description": "Streakr - Habit Tracker PWA",
 	"private": true,
 	"scripts": {
-		"start": "node server.js",
 		"dev": "node server.js",
 		"lint": "biome lint .",
 		"lint:fix": "biome check . --write",
