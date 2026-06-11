@@ -550,7 +550,9 @@ function saveHabit() {
 function deleteHabit() {
   if (!editingId || !confirm('Delete this habit and all its data?')) return;
   habits = habits.filter(h => h.id !== editingId);
-  saveHabits(); closeModal(); render();
+  saveHabits(); closeModal();
+  if (!habits.length) setView('landing');
+  else render();
 }
 
 /* ══════════════════════════════════
