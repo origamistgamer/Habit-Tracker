@@ -5,7 +5,6 @@ const STORE = 'streakr_v3';
 
 const HABIT_ICONS = [
   { id:"run", label:"Run", emoji:"🏃", lucide:"footprints", cat:"fitness" },
-  { id:"walk", label:"Walk", emoji:"🚶", lucide:"walk", cat:"fitness" },
   { id:"cycle", label:"Cycle", emoji:"🚴", lucide:"bike", cat:"fitness" },
   { id:"swim", label:"Swim", emoji:"🏊", lucide:"waves", cat:"fitness" },
   { id:"gym", label:"Gym", emoji:"🏋️", lucide:"dumbbell", cat:"fitness" },
@@ -17,6 +16,7 @@ const HABIT_ICONS = [
   { id:"water", label:"Water", emoji:"💧", lucide:"droplets", cat:"health" },
   { id:"sleep", label:"Sleep", emoji:"😴", lucide:"moon", cat:"health" },
   { id:"diet", label:"Diet", emoji:"🥗", lucide:"salad", cat:"health" },
+  { id:"noscreen", label:"No Screens", emoji:"📵", lucide:"monitor-off", cat:"health" },
   { id:"code", label:"Code", emoji:"💻", lucide:"code-2", cat:"creative" },
   { id:"music", label:"Music", emoji:"🎵", lucide:"music", cat:"creative" },
   { id:"draw", label:"Draw", emoji:"🎨", lucide:"pencil", cat:"creative" },
