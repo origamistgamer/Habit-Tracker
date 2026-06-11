@@ -4,27 +4,47 @@
 const STORE = 'streakr_v3';
 
 const HABIT_ICONS = [
-  { id:"run", label:"Run", emoji:"🏃", cat:"fitness" }, { id:"walk", label:"Walk", emoji:"🚶", cat:"fitness" },
-  { id:"cycle", label:"Cycle", emoji:"🚴", cat:"fitness" }, { id:"swim", label:"Swim", emoji:"🏊", cat:"fitness" },
-  { id:"gym", label:"Gym", emoji:"🏋️", cat:"fitness" }, { id:"yoga", label:"Yoga", emoji:"🧘", cat:"fitness" },
-  { id:"stretch", label:"Stretch", emoji:"🤸", cat:"fitness" }, { id:"hike", label:"Hike", emoji:"🥾", cat:"fitness" },
-  { id:"sport", label:"Sport", emoji:"⚽", cat:"fitness" }, { id:"climb", label:"Climb", emoji:"🧗", cat:"fitness" },
-  { id:"meditate", label:"Meditate", emoji:"🧠", cat:"mind" }, { id:"journal", label:"Journal", emoji:"📓", cat:"mind" },
-  { id:"read", label:"Read", emoji:"📚", cat:"mind" }, { id:"learn", label:"Learn", emoji:"🎓", cat:"mind" },
-  { id:"focus", label:"Deep Work", emoji:"🎯", cat:"mind" }, { id:"gratitude", label:"Gratitude", emoji:"🙏", cat:"mind" },
-  { id:"plan", label:"Plan Day", emoji:"🗓️", cat:"mind" }, { id:"puzzle", label:"Puzzle", emoji:"🧩", cat:"mind" },
-  { id:"water", label:"Water", emoji:"💧", cat:"health" }, { id:"sleep", label:"Sleep", emoji:"😴", cat:"health" },
-  { id:"vitamins", label:"Vitamins", emoji:"💊", cat:"health" }, { id:"diet", label:"Diet", emoji:"🥗", cat:"health" },
-  { id:"nofood", label:"No Junk", emoji:"🚫", cat:"health" }, { id:"teeth", label:"Floss", emoji:"🦷", cat:"health" },
-  { id:"skincare", label:"Skincare", emoji:"🧴", cat:"health" }, { id:"steps", label:"10K Steps", emoji:"👟", cat:"health" },
-  { id:"draw", label:"Draw", emoji:"🎨", cat:"creative" }, { id:"write", label:"Write", emoji:"✍️", cat:"creative" },
-  { id:"music", label:"Music", emoji:"🎵", cat:"creative" }, { id:"guitar", label:"Guitar", emoji:"🎸", cat:"creative" },
-  { id:"code", label:"Code", emoji:"💻", cat:"creative" }, { id:"photo", label:"Photo", emoji:"📷", cat:"creative" },
-  { id:"cook", label:"Cook", emoji:"🍳", cat:"creative" },
-  { id:"family", label:"Family", emoji:"👨‍👩‍👧", cat:"social" }, { id:"friend", label:"Connect", emoji:"🤝", cat:"social" },
-  { id:"noscreen", label:"No Screen", emoji:"📵", cat:"social" }, { id:"outside", label:"Go Outside", emoji:"🌿", cat:"social" },
-  { id:"clean", label:"Clean", emoji:"🧹", cat:"social" }, { id:"study", label:"Study", emoji:"📝", cat:"social" },
-  { id:"savings", label:"Save Money", emoji:"💰", cat:"social" }, { id:"nophone", label:"No Phone", emoji:"🔕", cat:"social" },
+  { id:"run", label:"Run", emoji:"🏃", lucide:"footprints", cat:"fitness" },
+  { id:"walk", label:"Walk", emoji:"🚶", lucide:"walk", cat:"fitness" },
+  { id:"cycle", label:"Cycle", emoji:"🚴", lucide:"bike", cat:"fitness" },
+  { id:"swim", label:"Swim", emoji:"🏊", lucide:"waves", cat:"fitness" },
+  { id:"gym", label:"Gym", emoji:"🏋️", lucide:"dumbbell", cat:"fitness" },
+  { id:"yoga", label:"Yoga", emoji:"🧘", lucide:"person-standing", cat:"fitness" },
+  { id:"stretch", label:"Stretch", emoji:"🤸", lucide:"accessibility", cat:"fitness" },
+  { id:"hike", label:"Hike", emoji:"🥾", lucide:"mountain", cat:"fitness" },
+  { id:"sport", label:"Sport", emoji:"⚽", lucide:"circle-dot", cat:"fitness" },
+  { id:"climb", label:"Climb", emoji:"🧗", lucide:"arrow-up-from-line", cat:"fitness" },
+  { id:"meditate", label:"Meditate", emoji:"🧠", lucide:"brain", cat:"mind" },
+  { id:"journal", label:"Journal", emoji:"📓", lucide:"notebook-pen", cat:"mind" },
+  { id:"read", label:"Read", emoji:"📚", lucide:"book-open", cat:"mind" },
+  { id:"learn", label:"Learn", emoji:"🎓", lucide:"graduation-cap", cat:"mind" },
+  { id:"focus", label:"Deep Work", emoji:"🎯", lucide:"target", cat:"mind" },
+  { id:"gratitude", label:"Gratitude", emoji:"🙏", lucide:"heart", cat:"mind" },
+  { id:"plan", label:"Plan Day", emoji:"🗓️", lucide:"calendar-check", cat:"mind" },
+  { id:"puzzle", label:"Puzzle", emoji:"🧩", lucide:"puzzle", cat:"mind" },
+  { id:"water", label:"Water", emoji:"💧", lucide:"droplets", cat:"health" },
+  { id:"sleep", label:"Sleep", emoji:"😴", lucide:"moon", cat:"health" },
+  { id:"vitamins", label:"Vitamins", emoji:"💊", lucide:"pill", cat:"health" },
+  { id:"diet", label:"Diet", emoji:"🥗", lucide:"salad", cat:"health" },
+  { id:"nofood", label:"No Junk", emoji:"🚫", lucide:"ban", cat:"health" },
+  { id:"teeth", label:"Floss", emoji:"🦷", lucide:"tooth", cat:"health" },
+  { id:"skincare", label:"Skincare", emoji:"🧴", lucide:"sparkles", cat:"health" },
+  { id:"steps", label:"10K Steps", emoji:"👟", lucide:"footprints", cat:"health" },
+  { id:"draw", label:"Draw", emoji:"🎨", lucide:"pencil", cat:"creative" },
+  { id:"write", label:"Write", emoji:"✍️", lucide:"pen-line", cat:"creative" },
+  { id:"music", label:"Music", emoji:"🎵", lucide:"music", cat:"creative" },
+  { id:"guitar", label:"Guitar", emoji:"🎸", lucide:"guitar", cat:"creative" },
+  { id:"code", label:"Code", emoji:"💻", lucide:"code-2", cat:"creative" },
+  { id:"photo", label:"Photo", emoji:"📷", lucide:"camera", cat:"creative" },
+  { id:"cook", label:"Cook", emoji:"🍳", lucide:"chef-hat", cat:"creative" },
+  { id:"family", label:"Family", emoji:"👨‍👩‍👧", lucide:"users", cat:"social" },
+  { id:"friend", label:"Connect", emoji:"🤝", lucide:"handshake", cat:"social" },
+  { id:"noscreen", label:"No Screen", emoji:"📵", lucide:"monitor-off", cat:"social" },
+  { id:"outside", label:"Go Outside", emoji:"🌿", lucide:"tree-pine", cat:"social" },
+  { id:"clean", label:"Clean", emoji:"🧹", lucide:"brush", cat:"social" },
+  { id:"study", label:"Study", emoji:"📝", lucide:"library", cat:"social" },
+  { id:"savings", label:"Save Money", emoji:"💰", lucide:"piggy-bank", cat:"social" },
+  { id:"nophone", label:"No Phone", emoji:"🔕", lucide:"smartphone-off", cat:"social" },
 ];
 
 let habits = [];
@@ -32,10 +52,15 @@ let view = 'today';
 let gridYear, gridMonth;
 let editingId = null;
 let pickedColor = '#818cf8';
-let pickedEmoji = '🏃';
+let pickedIcon = 'run';
 let pickedFreq = 7;
 let sortableInstance = null;
 let lastAllDone = false; // prevent repeat confetti
+
+function getIconData(h) {
+  const icon = h.icon ? HABIT_ICONS.find(i => i.id === h.icon) : null;
+  return icon || { emoji: h.emoji || '🏃', lucide: null };
+}
 
 /* ── Storage ── */
 async function loadHabits() {
@@ -197,6 +222,7 @@ function renderToday() {
     const streak = getStreak(h);
     const week = getWeekLog(h);
     const missed = !done ? getConsecutiveMissed(h) : 0;
+    const icon = getIconData(h);
 
     const card = document.createElement('div');
     card.className = 'habit-card' + (done ? ' done' : '');
@@ -210,7 +236,7 @@ function renderToday() {
     card.innerHTML = `
       <div class="drag-handle" title="Drag to reorder">⠿</div>
       <div class="card-top">
-        <div class="card-emoji">${h.emoji}</div>
+        <div class="card-icon-tile">${icon.lucide ? `<i data-lucide="${icon.lucide}" class="card-lucide-icon"></i>` : icon.emoji}</div>
         <button class="check-circle" data-id="${h.id}">${done ? '✓' : ''}</button>
       </div>
       <div class="card-name">${h.name}</div>
@@ -233,6 +259,7 @@ function renderToday() {
     });
     container.appendChild(card);
   });
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 
   // Summary
   const doneCount = habits.filter(h => !!h.log[today]).length;
@@ -323,11 +350,14 @@ function renderGrid() {
   habits.forEach(h => {
     const row = document.createElement('div');
     row.className = 'grid-label-row';
-    row.innerHTML = `<span class="grid-label-emoji">${h.emoji}</span><span class="grid-label-text">${h.name}</span>`;
+    row.style.setProperty('--hc', h.color);
+    const icon = getIconData(h);
+    row.innerHTML = `<span class="grid-label-icon">${icon.lucide ? `<i data-lucide="${icon.lucide}" class="grid-lucide-icon"></i>` : icon.emoji}</span><span class="grid-label-text">${h.name}</span>`;
     row.style.height = '36px';
     row.addEventListener('click', () => openModal(h.id));
     labels.appendChild(row);
   });
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 
   // Dot rows
   const rows = document.getElementById('gridRows');
@@ -406,11 +436,12 @@ function renderStats() {
         if (fmtDate(d) <= today) { possible++; if (h.log[fmtDate(d)]) done++; }
       }
       const pct = possible ? Math.round((done/possible)*100) : 0;
+      const icon = getIconData(h);
       const row = document.createElement('div');
       row.className = 'stats-habit-row';
       row.style.setProperty('--hc', h.color);
       row.innerHTML = `
-        <div class="shr-emoji">${h.emoji}</div>
+        <div class="shr-icon">${icon.lucide ? `<i data-lucide="${icon.lucide}" class="shr-lucide-icon"></i>` : icon.emoji}</div>
         <div class="shr-info">
           <div class="shr-name">${h.name}</div>
           <div class="shr-bar-wrap">
@@ -431,6 +462,7 @@ function renderStats() {
       listWrap.appendChild(row);
     });
     content.appendChild(listWrap);
+    if (typeof lucide !== 'undefined') lucide.createIcons();
   }
 
   // Heatmap — 7-day-week grid
@@ -473,7 +505,7 @@ function renderStats() {
 /* ══════════════════════════════════
    MODAL
 ══════════════════════════════════ */
-function renderEmojiGrid(selected) {
+function renderEmojiGrid(selectedId) {
   const grid = document.getElementById('emojiGrid');
   grid.innerHTML = '';
   const cats = [...new Set(HABIT_ICONS.map(i => i.cat))];
@@ -486,18 +518,20 @@ function renderEmojiGrid(selected) {
     wrap.className = 'emoji-row';
     HABIT_ICONS.filter(i => i.cat === cat).forEach(icon => {
       const btn = document.createElement('button');
-      btn.className = 'emoji-btn' + (icon.emoji === selected ? ' active' : '');
-      btn.dataset.e = icon.emoji;
-      btn.innerHTML = `<span class="eb-icon">${icon.emoji}</span><span class="eb-label">${icon.label}</span>`;
+      btn.className = 'icon-tile' + (icon.id === selectedId ? ' active' : '');
+      btn.dataset.icon = icon.id;
+      btn.style.setProperty('--ic', pickedColor);
+      btn.innerHTML = `<i data-lucide="${icon.lucide}" class="picker-lucide-icon"></i><span class="eb-label">${icon.label}</span>`;
       btn.addEventListener('click', () => {
-        pickedEmoji = icon.emoji;
-        document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('active'));
+        pickedIcon = icon.id;
+        document.querySelectorAll('.icon-tile').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
       });
       wrap.appendChild(btn);
     });
     grid.appendChild(wrap);
   });
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function openModal(id = null) {
@@ -508,10 +542,10 @@ function openModal(id = null) {
   document.getElementById('delBtn').style.display = h ? 'inline-flex' : 'none';
 
   pickedColor = h ? h.color : '#818cf8';
-  pickedEmoji = h ? h.emoji : '🏃';
+  pickedIcon = h ? (h.icon || 'run') : 'run';
   pickedFreq  = h ? (h.freq || 7) : 7;
 
-  renderEmojiGrid(pickedEmoji);
+  renderEmojiGrid(pickedIcon);
   document.querySelectorAll('.cswatch').forEach(s => s.classList.toggle('active', s.dataset.c === pickedColor));
   document.querySelectorAll('.freq-pill').forEach(p => p.classList.toggle('active', +p.dataset.f === pickedFreq));
 
@@ -529,9 +563,9 @@ function saveHabit() {
   if (!name) { document.getElementById('habitName').focus(); return; }
   if (editingId) {
     const h = habits.find(x => x.id === editingId);
-    if (h) { h.name = name; h.color = pickedColor; h.emoji = pickedEmoji; h.freq = pickedFreq; }
+    if (h) { h.name = name; h.color = pickedColor; h.icon = pickedIcon; h.freq = pickedFreq; }
   } else {
-    habits.push({ id: uid(), name, color: pickedColor, emoji: pickedEmoji, freq: pickedFreq, log: {} });
+    habits.push({ id: uid(), name, color: pickedColor, icon: pickedIcon, freq: pickedFreq, log: {} });
   }
   saveHabits(); closeModal(); render();
 }
@@ -627,6 +661,8 @@ async function init() {
 
   // Go to correct view
   setView(view);
+  // Init Lucide icons (for landing page static HTML)
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 document.addEventListener('DOMContentLoaded', init);
