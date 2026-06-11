@@ -733,19 +733,6 @@ body {
 .cswatch:hover { transform: scale(1.2); }
 .cswatch.active { border-color: var(--text); transform: scale(1.2); }
 
-.freq-row { display: flex; gap: 6px; flex-wrap: wrap; }
-.freq-pill {
-  padding: 7px 14px;
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  background: transparent;
-  color: var(--text2);
-  font-family: var(--font); font-size: 13px; font-weight: 500;
-  cursor: pointer; transition: all .15s;
-}
-.freq-pill:hover { border-color: var(--border2); color: var(--text); background: var(--surface2); }
-.freq-pill.active { background: color-mix(in srgb, #818cf8 20%, transparent); border-color: #818cf8; color: #818cf8; font-weight: 600; }
-
 .modal-actions { display: flex; justify-content: flex-end; gap: 8px; padding-top: 4px; border-top: 1px solid var(--border); }
 .save-btn {
   background: linear-gradient(135deg, #818cf8, #c084fc);
