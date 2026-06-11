@@ -316,6 +316,18 @@ body {
 .streak-pill .fire { font-size: 13px; }
 .streak-pill.hot { background: color-mix(in srgb, #fb923c 15%, transparent); color: #fb923c; }
 
+.skip-warning {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 500;
+  color: #fb923c;
+  padding: 6px 10px;
+  margin-bottom: 10px;
+  background: color-mix(in srgb, #fb923c 10%, transparent);
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, #fb923c 15%, transparent);
+  line-height: 1.3;
+}
+
 .week-track { display: flex; gap: 3px; }
 .week-pip {
   width: 6px; height: 6px;
@@ -656,7 +668,9 @@ body {
   -webkit-backdrop-filter: blur(25px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--r-lg);
-  width: 440px; max-width: 95vw;
+  width: 480px; max-width: 95vw;
+  max-height: 85vh;
+  overflow-y: auto;
   padding: 28px;
   display: flex; flex-direction: column; gap: 20px;
   animation: fadeUp .22s var(--ease);
@@ -687,19 +701,24 @@ body {
 .modal-field input:focus { border-color: #818cf8; }
 .modal-field input::placeholder { color: var(--text3); }
 
-.emoji-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.emoji-grid { display: flex; flex-direction: column; gap: 8px; }
+.emoji-cat { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .6px; }
+.emoji-row { display: flex; flex-wrap: wrap; gap: 6px; }
 .emoji-btn {
-  width: 40px; height: 40px;
+  width: 72px; padding: 8px 4px;
   background: var(--surface2);
   border: 2px solid transparent;
   border-radius: var(--r-sm);
-  font-size: 20px;
   cursor: pointer;
   transition: all .15s;
-  display: flex; align-items: center; justify-content: center;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  font-family: var(--font);
 }
-.emoji-btn:hover { background: var(--surface3); transform: scale(1.1); }
-.emoji-btn.active { border-color: #818cf8; background: color-mix(in srgb, #818cf8 15%, transparent); }
+.emoji-btn:hover { background: var(--surface3); transform: translateY(-2px); }
+.emoji-btn.active { border-color: #818cf8; background: color-mix(in srgb, #818cf8 12%, transparent); }
+.eb-icon { font-size: 22px; line-height: 1; }
+.eb-label { font-size: 10px; color: var(--text2); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 64px; }
+.emoji-btn.active .eb-label { color: #818cf8; }
 
 .color-grid { display: flex; gap: 8px; flex-wrap: wrap; }
 .cswatch {

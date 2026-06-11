@@ -3,6 +3,30 @@
 ══════════════════════════════════ */
 const STORE = 'streakr_v3';
 
+const HABIT_ICONS = [
+  { id:"run", label:"Run", emoji:"🏃", cat:"fitness" }, { id:"walk", label:"Walk", emoji:"🚶", cat:"fitness" },
+  { id:"cycle", label:"Cycle", emoji:"🚴", cat:"fitness" }, { id:"swim", label:"Swim", emoji:"🏊", cat:"fitness" },
+  { id:"gym", label:"Gym", emoji:"🏋️", cat:"fitness" }, { id:"yoga", label:"Yoga", emoji:"🧘", cat:"fitness" },
+  { id:"stretch", label:"Stretch", emoji:"🤸", cat:"fitness" }, { id:"hike", label:"Hike", emoji:"🥾", cat:"fitness" },
+  { id:"sport", label:"Sport", emoji:"⚽", cat:"fitness" }, { id:"climb", label:"Climb", emoji:"🧗", cat:"fitness" },
+  { id:"meditate", label:"Meditate", emoji:"🧠", cat:"mind" }, { id:"journal", label:"Journal", emoji:"📓", cat:"mind" },
+  { id:"read", label:"Read", emoji:"📚", cat:"mind" }, { id:"learn", label:"Learn", emoji:"🎓", cat:"mind" },
+  { id:"focus", label:"Deep Work", emoji:"🎯", cat:"mind" }, { id:"gratitude", label:"Gratitude", emoji:"🙏", cat:"mind" },
+  { id:"plan", label:"Plan Day", emoji:"🗓️", cat:"mind" }, { id:"puzzle", label:"Puzzle", emoji:"🧩", cat:"mind" },
+  { id:"water", label:"Water", emoji:"💧", cat:"health" }, { id:"sleep", label:"Sleep", emoji:"😴", cat:"health" },
+  { id:"vitamins", label:"Vitamins", emoji:"💊", cat:"health" }, { id:"diet", label:"Diet", emoji:"🥗", cat:"health" },
+  { id:"nofood", label:"No Junk", emoji:"🚫", cat:"health" }, { id:"teeth", label:"Floss", emoji:"🦷", cat:"health" },
+  { id:"skincare", label:"Skincare", emoji:"🧴", cat:"health" }, { id:"steps", label:"10K Steps", emoji:"👟", cat:"health" },
+  { id:"draw", label:"Draw", emoji:"🎨", cat:"creative" }, { id:"write", label:"Write", emoji:"✍️", cat:"creative" },
+  { id:"music", label:"Music", emoji:"🎵", cat:"creative" }, { id:"guitar", label:"Guitar", emoji:"🎸", cat:"creative" },
+  { id:"code", label:"Code", emoji:"💻", cat:"creative" }, { id:"photo", label:"Photo", emoji:"📷", cat:"creative" },
+  { id:"cook", label:"Cook", emoji:"🍳", cat:"creative" },
+  { id:"family", label:"Family", emoji:"👨‍👩‍👧", cat:"social" }, { id:"friend", label:"Connect", emoji:"🤝", cat:"social" },
+  { id:"noscreen", label:"No Screen", emoji:"📵", cat:"social" }, { id:"outside", label:"Go Outside", emoji:"🌿", cat:"social" },
+  { id:"clean", label:"Clean", emoji:"🧹", cat:"social" }, { id:"study", label:"Study", emoji:"📝", cat:"social" },
+  { id:"savings", label:"Save Money", emoji:"💰", cat:"social" }, { id:"nophone", label:"No Phone", emoji:"🔕", cat:"social" },
+];
+
 let habits = [];
 let view = 'today';
 let gridYear, gridMonth;
@@ -93,6 +117,14 @@ function getStreakAtDate(h, dateStr) {
   return s;
 }
 
+/* ── Consecutive missed days (backwards from yesterday) ── */
+function getConsecutiveMissed(h) {
+  let missed = 0, d = new Date();
+  d.setDate(d.getDate() - 1);
+  while (!h.log[fmtDate(d)] && missed < 365) { missed++; d.setDate(d.getDate() - 1); }
+  return missed;
+}
+
 /* ══════════════════════════════════
    CONFETTI
 ══════════════════════════════════ */
@@ -164,6 +196,7 @@ function renderToday() {
     const done = !!h.log[today];
     const streak = getStreak(h);
     const week = getWeekLog(h);
+    const missed = !done ? getConsecutiveMissed(h) : 0;
 
     const card = document.createElement('div');
     card.className = 'habit-card' + (done ? ' done' : '');
@@ -181,6 +214,7 @@ function renderToday() {
         <button class="check-circle" data-id="${h.id}">${done ? '✓' : ''}</button>
       </div>
       <div class="card-name">${h.name}</div>
+      ${missed >= 2 ? '<div class="skip-warning">⚠️ Don\'t skip twice — keep the chain alive</div>' : ''}
       <div class="card-footer">
         <div class="streak-pill${streak >= 3 ? ' hot' : ''}">
           <span class="fire">🔥</span> ${streak} day${streak !== 1 ? 's' : ''}
@@ -439,6 +473,33 @@ function renderStats() {
 /* ══════════════════════════════════
    MODAL
 ══════════════════════════════════ */
+function renderEmojiGrid(selected) {
+  const grid = document.getElementById('emojiGrid');
+  grid.innerHTML = '';
+  const cats = [...new Set(HABIT_ICONS.map(i => i.cat))];
+  cats.forEach(cat => {
+    const label = document.createElement('div');
+    label.className = 'emoji-cat';
+    label.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+    grid.appendChild(label);
+    const wrap = document.createElement('div');
+    wrap.className = 'emoji-row';
+    HABIT_ICONS.filter(i => i.cat === cat).forEach(icon => {
+      const btn = document.createElement('button');
+      btn.className = 'emoji-btn' + (icon.emoji === selected ? ' active' : '');
+      btn.dataset.e = icon.emoji;
+      btn.innerHTML = `<span class="eb-icon">${icon.emoji}</span><span class="eb-label">${icon.label}</span>`;
+      btn.addEventListener('click', () => {
+        pickedEmoji = icon.emoji;
+        document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+      wrap.appendChild(btn);
+    });
+    grid.appendChild(wrap);
+  });
+}
+
 function openModal(id = null) {
   editingId = id;
   const h = id ? habits.find(x => x.id === id) : null;
@@ -450,8 +511,8 @@ function openModal(id = null) {
   pickedEmoji = h ? h.emoji : '🏃';
   pickedFreq  = h ? (h.freq || 7) : 7;
 
+  renderEmojiGrid(pickedEmoji);
   document.querySelectorAll('.cswatch').forEach(s => s.classList.toggle('active', s.dataset.c === pickedColor));
-  document.querySelectorAll('.emoji-btn').forEach(b => b.classList.toggle('active', b.dataset.e === pickedEmoji));
   document.querySelectorAll('.freq-pill').forEach(p => p.classList.toggle('active', +p.dataset.f === pickedFreq));
 
   document.getElementById('overlay').classList.add('open');
@@ -548,10 +609,6 @@ async function init() {
   document.querySelectorAll('.cswatch').forEach(s => s.addEventListener('click', () => {
     pickedColor = s.dataset.c;
     document.querySelectorAll('.cswatch').forEach(x => x.classList.toggle('active', x === s));
-  }));
-  document.querySelectorAll('.emoji-btn').forEach(b => b.addEventListener('click', () => {
-    pickedEmoji = b.dataset.e;
-    document.querySelectorAll('.emoji-btn').forEach(x => x.classList.toggle('active', x === b));
   }));
   document.querySelectorAll('.freq-pill').forEach(p => p.addEventListener('click', () => {
     pickedFreq = +p.dataset.f;
