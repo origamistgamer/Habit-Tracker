@@ -36,6 +36,9 @@ let pickedIcon = 'run';
 let sortableInstance = null;
 let lastAllDone = false; // prevent repeat confetti
 
+// AI settings accessed via AI.getSettings()
+let aiToastTimer = null;
+
 /* ── i18n ── */
 let currentLang = localStorage.getItem('streakr_lang') || 'en';
 
@@ -73,6 +76,87 @@ function translatePage() {
 
 function getLocale() { return LOCALE_MAP[currentLang] || 'en-US'; }
 
+/* ── AI ── */
+function initAISettingsPanel() {
+  const overlay = document.getElementById('aiSettingsOverlay');
+  const panel = document.getElementById('aiSettingsPanel');
+  const openBtn = document.getElementById('openAISettings');
+  const closeBtn = document.getElementById('aiSettingsClose');
+
+  openBtn?.addEventListener('click', () => {
+    overlay.classList.add('open');
+    loadSettingsIntoPanel();
+  });
+  closeBtn?.addEventListener('click', () => overlay.classList.remove('open'));
+  overlay?.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+
+  document.getElementById('aiEnabled')?.addEventListener('change', e => { const s = AI.getSettings(); s.enabled = e.target.checked; AI.setSettings(s); updateProviderVisibility(); });
+  document.getElementById('aiProvider')?.addEventListener('change', e => { const s = AI.getSettings(); s.provider = e.target.value; AI.setSettings(s); updateProviderVisibility(); });
+  document.getElementById('ollamaUrl')?.addEventListener('input', e => { const s = AI.getSettings(); s.ollamaUrl = e.target.value; AI.setSettings(s); });
+  document.getElementById('ollamaModel')?.addEventListener('input', e => { const s = AI.getSettings(); s.ollamaModel = e.target.value; AI.setSettings(s); });
+  document.getElementById('openaiKey')?.addEventListener('input', e => { const s = AI.getSettings(); s.openaiKey = e.target.value; AI.setSettings(s); });
+  document.getElementById('openaiModel')?.addEventListener('input', e => { const s = AI.getSettings(); s.openaiModel = e.target.value; AI.setSettings(s); });
+  document.getElementById('anthropicKey')?.addEventListener('input', e => { const s = AI.getSettings(); s.anthropicKey = e.target.value; AI.setSettings(s); });
+  document.getElementById('anthropicModel')?.addEventListener('input', e => { const s = AI.getSettings(); s.anthropicModel = e.target.value; AI.setSettings(s); });
+  document.getElementById('featureWeekly')?.addEventListener('change', e => { const s = AI.getSettings(); s.features.weeklySummary = e.target.checked; AI.setSettings(s); });
+  document.getElementById('featureStreak')?.addEventListener('change', e => { const s = AI.getSettings(); s.features.streakMessages = e.target.checked; AI.setSettings(s); });
+  document.getElementById('featureRecovery')?.addEventListener('change', e => { const s = AI.getSettings(); s.features.recoveryAdvice = e.target.checked; AI.setSettings(s); });
+
+  document.getElementById('testConnection')?.addEventListener('click', async () => {
+    const btn = document.getElementById('testConnection');
+    const result = document.getElementById('testResult');
+    btn.disabled = true; btn.textContent = t('ai.testing'); result.textContent = '';
+    try {
+      const ok = await AI.testConnection();
+      result.textContent = ok ? t('ai.test_success') : t('ai.test_fail');
+      result.style.color = ok ? '#34d399' : '#f87171';
+    } catch { result.textContent = t('ai.test_fail'); result.style.color = '#f87171'; }
+    btn.disabled = false; btn.textContent = t('ai.test');
+  });
+}
+
+function loadSettingsIntoPanel() {
+  const s = AI.getSettings();
+  document.getElementById('aiEnabled').checked = s.enabled;
+  document.getElementById('aiProvider').value = s.provider;
+  document.getElementById('ollamaUrl').value = s.ollamaUrl;
+  document.getElementById('ollamaModel').value = s.ollamaModel;
+  document.getElementById('openaiKey').value = s.openaiKey;
+  document.getElementById('openaiModel').value = s.openaiModel;
+  document.getElementById('anthropicKey').value = s.anthropicKey;
+  document.getElementById('anthropicModel').value = s.anthropicModel;
+  document.getElementById('featureWeekly').checked = s.features.weeklySummary;
+  document.getElementById('featureStreak').checked = s.features.streakMessages;
+  document.getElementById('featureRecovery').checked = s.features.recoveryAdvice;
+  updateProviderVisibility();
+  document.getElementById('testResult').textContent = '';
+}
+
+function updateProviderVisibility() {
+  const s = AI.getSettings();
+  const prov = s.provider;
+  document.getElementById('ollamaSettings').style.display = prov === 'ollama' ? 'block' : 'none';
+  document.getElementById('openaiSettings').style.display = prov === 'openai' ? 'block' : 'none';
+  document.getElementById('anthropicSettings').style.display = prov === 'anthropic' ? 'block' : 'none';
+}
+
+function showAIToast(html) {
+  const toast = document.getElementById('aiToast');
+  if (!toast) return;
+  clearTimeout(aiToastTimer);
+  toast.innerHTML = html;
+  toast.classList.add('show');
+  aiToastTimer = setTimeout(() => toast.classList.remove('show'), 8000);
+}
+
+function createAICard(titleKey, html) {
+  return `<div class="ai-card"><strong>${t(titleKey)}</strong><div>${html}</div></div>`;
+}
+
+function createAILoading(titleKey) {
+  return `<div class="ai-card"><strong>${t(titleKey)}</strong><div><span class="ai-spinner"></span>${t('ai.summary_loading')}</div></div>`;
+}
+
 function getIconData(h) {
   const icon = h.icon ? HABIT_ICONS.find(i => i.id === h.icon) : null;
   return icon || { emoji: h.emoji || '🏃', lucide: null };
@@ -82,6 +166,15 @@ function getIconData(h) {
 async function loadHabits() {
   // localStorage is the primary store — preserves existing data
   try { habits = JSON.parse(localStorage.getItem(STORE)) || []; } catch { habits = []; }
+  // Migrate old habits: convert string name to translation object
+  let migrated = false;
+  habits.forEach(h => {
+    if (h.name && typeof h.name === 'string') {
+      h.name = { en: h.name, hi: '', te: '' };
+      migrated = true;
+    }
+  });
+  if (migrated) saveHabits();
   // Sync from server only if localStorage was empty (e.g. first time on a new device)
   if (!habits.length) {
     try {
@@ -194,6 +287,14 @@ function checkAndCelebrate() {
   if (allDone && !lastAllDone) {
     fireConfetti();
     lastAllDone = true;
+    // AI streak message
+    const s1 = AI.getSettings();
+    if (s1.enabled && s1.features.streakMessages) {
+      const bestStreak = habits.reduce((b,h) => Math.max(b, getStreak(h)), 0);
+      AI.getStreakMessage(bestStreak, habits.length, currentLang).then(msg => {
+        if (msg) showAIToast(createAICard('ai.streak_messages', msg));
+      }).catch(() => {});
+    }
   } else if (!allDone) {
     lastAllDone = false;
   }
@@ -262,14 +363,20 @@ function renderToday() {
       `<div class="week-pip${w.done?' lit':''}${w.isToday?' today-pip':''}"></div>`
     ).join('');
 
+    const s2 = AI.getSettings();
+    const recoveryHtml = (missed >= 2 && s2.enabled && s2.features.recoveryAdvice)
+      ? `<div class="ai-recovery" data-habit="${h.id}" data-missed="${missed}">${createAILoading('ai.recovery_advice')}</div>`
+      : '';
+
     card.innerHTML = `
       <div class="drag-handle" title="${t('today.drag_hint')}">⠿</div>
       <div class="card-top">
         <div class="card-icon-tile">${icon.lucide ? `<i data-lucide="${icon.lucide}" class="card-lucide-icon"></i>` : icon.emoji}</div>
         <button class="check-circle" data-id="${h.id}">${done ? '✓' : ''}</button>
       </div>
-      <div class="card-name">${h.name}</div>
+      <div class="card-name">${getHabitName(h)}</div>
       ${missed >= 2 ? `<div class="skip-warning">${t('today.skip_warning')}</div>` : ''}
+      ${recoveryHtml}
       <div class="card-footer">
         <div class="streak-pill${streak >= 3 ? ' hot' : ''}">
           ${streak === 1 ? t('today.streak',{count:streak}) : t('today.streak_plural',{count:streak})}
@@ -289,6 +396,22 @@ function renderToday() {
     container.appendChild(card);
   });
   if (typeof lucide !== 'undefined') lucide.createIcons();
+
+  // Load AI recovery advice for habits with missed days
+  const s3 = AI.getSettings();
+  if (s3.enabled && s3.features.recoveryAdvice) {
+    container.querySelectorAll('.ai-recovery').forEach(el => {
+      const habitId = el.dataset.habit;
+      const missed = parseInt(el.dataset.missed, 10);
+      const habit = habits.find(h => h.id === habitId);
+      if (habit) {
+        const displayName = habit.name && habit.name[currentLang] ? habit.name[currentLang] : habit.name;
+        AI.getRecoveryAdvice(displayName, missed, currentLang).then(msg => {
+          if (msg) el.innerHTML = createAICard('ai.recovery_advice', msg);
+        }).catch(() => { el.innerHTML = ''; });
+      }
+    });
+  }
 
   const doneCount = habits.filter(h => !!h.log[today]).length;
   const leftCount = habits.length - doneCount;
@@ -415,7 +538,7 @@ function renderGrid() {
     row.className = 'grid-label-row';
     row.style.setProperty('--hc', h.color);
     const icon = getIconData(h);
-    row.innerHTML = `<span class="grid-label-icon">${icon.lucide ? `<i data-lucide="${icon.lucide}" class="grid-lucide-icon"></i>` : icon.emoji}</span><span class="grid-label-text">${h.name}</span>`;
+    row.innerHTML = `<span class="grid-label-icon">${icon.lucide ? `<i data-lucide="${icon.lucide}" class="grid-lucide-icon"></i>` : icon.emoji}</span><span class="grid-label-text">${getHabitName(h)}</span>`;
     row.style.height = '36px';
     row.addEventListener('click', () => openModal(h.id));
     labels.appendChild(row);
@@ -489,6 +612,22 @@ function renderStats() {
   });
   content.appendChild(topRow);
 
+  // AI Weekly Summary
+  const s4 = AI.getSettings();
+  if (habits.length && s4.enabled && s4.features.weeklySummary) {
+    const summarySection = document.createElement('div');
+    summarySection.className = 'ai-summary-section';
+    summarySection.innerHTML = createAILoading('ai.summary_title');
+    content.appendChild(summarySection);
+    const weekDates = Array.from({length:7}, (_,i) => {
+      const d = new Date(); d.setDate(d.getDate() - (6-i));
+      return fmtDate(d);
+    });
+    AI.generateWeeklySummary(habits, weekDates, currentLang).then(html => {
+      if (html) summarySection.innerHTML = createAICard('ai.summary_title', html);
+    }).catch(() => { summarySection.remove(); });
+  }
+
   // Per-habit rows
   if (habits.length) {
     const listWrap = document.createElement('div');
@@ -509,7 +648,7 @@ function renderStats() {
       row.innerHTML = `
         <div class="shr-icon">${icon.lucide ? `<i data-lucide="${icon.lucide}" class="shr-lucide-icon"></i>` : icon.emoji}</div>
         <div class="shr-info">
-          <div class="shr-name">${h.name}</div>
+          <div class="shr-name">${getHabitName(h)}</div>
           <div class="shr-bar-wrap">
             <div class="shr-bar" style="width:${pct}%;background:${h.color}"></div>
           </div>
@@ -604,17 +743,36 @@ function openModal(id = null) {
   editingId = id;
   const h = id ? habits.find(x => x.id === id) : null;
   document.getElementById('modalTitle').textContent = h ? t('modal.edit') : t('modal.new');
-  document.getElementById('habitName').value = h ? h.name : '';
+  document.getElementById('habitName').value = h ? getHabitName(h) : '';
   document.getElementById('delBtn').style.display = h ? 'inline-flex' : 'none';
 
   pickedColor = h ? h.color : '#818cf8';
   pickedIcon = h ? (h.icon || 'run') : 'run';
+
+  // Populate translation fields
+  if (h && h.name && typeof h.name === 'object') {
+    document.getElementById('habitNameEn').value = h.name.en || '';
+    document.getElementById('habitNameHi').value = h.name.hi || '';
+    document.getElementById('habitNameTe').value = h.name.te || '';
+    document.getElementById('habitNameTranslations').style.display = 'block';
+  } else {
+    document.getElementById('habitNameEn').value = '';
+    document.getElementById('habitNameHi').value = '';
+    document.getElementById('habitNameTe').value = '';
+    document.getElementById('habitNameTranslations').style.display = 'none';
+  }
 
   renderEmojiGrid(pickedIcon);
   document.querySelectorAll('.cswatch').forEach(s => s.classList.toggle('active', s.dataset.c === pickedColor));
 
   document.getElementById('overlay').classList.add('open');
   setTimeout(() => document.getElementById('habitName').focus(), 50);
+}
+
+function getHabitName(h) {
+  if (!h.name) return '';
+  if (typeof h.name === 'string') return h.name;
+  return h.name[currentLang] || h.name.en || Object.values(h.name)[0] || '';
 }
 
 function closeModal() {
@@ -625,11 +783,22 @@ function closeModal() {
 function saveHabit() {
   const name = document.getElementById('habitName').value.trim();
   if (!name) { document.getElementById('habitName').focus(); return; }
+  
+  const nameTranslations = {
+    en: document.getElementById('habitNameEn').value.trim() || name,
+    hi: document.getElementById('habitNameHi').value.trim() || '',
+    te: document.getElementById('habitNameTe').value.trim() || '',
+  };
+  
   if (editingId) {
     const h = habits.find(x => x.id === editingId);
-    if (h) { h.name = name; h.color = pickedColor; h.icon = pickedIcon; }
+    if (h) { 
+      h.name = nameTranslations; 
+      h.color = pickedColor; 
+      h.icon = pickedIcon; 
+    }
   } else {
-    habits.push({ id: uid(), name, color: pickedColor, icon: pickedIcon, log: {} });
+    habits.push({ id: uid(), name: nameTranslations, color: pickedColor, icon: pickedIcon, log: {} });
   }
   saveHabits(); closeModal(); render();
 }
@@ -732,6 +901,9 @@ async function init() {
     }
     render();
   });
+
+  // AI Settings Panel
+  initAISettingsPanel();
 
   // Modal
   document.getElementById('modalClose').addEventListener('click', closeModal);
