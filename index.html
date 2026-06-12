@@ -45,10 +45,13 @@
       </button>
     </div>
     <div class="sidebar-footer">
-      <div class="lang-switcher">
-        <button class="lang-btn active" data-lang="en">EN</button>
-        <button class="lang-btn" data-lang="hi">हि</button>
-        <button class="lang-btn" data-lang="te">తె</button>
+      <div class="sidebar-actions">
+        <div class="lang-switcher">
+          <button class="lang-btn active" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="hi">हि</button>
+          <button class="lang-btn" data-lang="te">తె</button>
+        </div>
+        <button class="gear-btn" id="openAISettings" title="AI Settings">⚙️</button>
       </div>
       <button class="add-habit-btn" id="openAdd">
         <span>+</span> <span data-i18n="sidebar.add">New Habit</span>
@@ -229,6 +232,24 @@
       <input id="habitName" type="text" data-i18n-placeholder="modal.placeholder" placeholder="e.g. Morning run, Read 20 mins…" maxlength="40" autocomplete="off"/>
     </div>
 
+    <div class="modal-field" id="habitNameTranslations" style="display:none;">
+      <label>Translations</label>
+      <div class="translation-inputs">
+        <div class="translation-row">
+          <span class="translation-lang" data-i18n="lang.en">English</span>
+          <input id="habitNameEn" type="text" placeholder="English name" maxlength="40" autocomplete="off"/>
+        </div>
+        <div class="translation-row">
+          <span class="translation-lang" data-i18n="lang.hi">Hindi</span>
+          <input id="habitNameHi" type="text" placeholder="हिन्दी नाम" maxlength="40" autocomplete="off"/>
+        </div>
+        <div class="translation-row">
+          <span class="translation-lang" data-i18n="lang.te">Telugu</span>
+          <input id="habitNameTe" type="text" placeholder="తెలుగు పేరు" maxlength="40" autocomplete="off"/>
+        </div>
+      </div>
+    </div>
+
     <div class="modal-field">
       <label data-i18n="modal.icon">Icon</label>
       <div class="emoji-grid" id="emojiGrid"></div>
@@ -255,7 +276,76 @@
   </div>
 </div>
 
+<!-- AI Settings Panel -->
+<div class="settings-overlay" id="aiSettingsOverlay">
+  <div class="settings-panel" id="aiSettingsPanel">
+    <div class="settings-header">
+      <h3 data-i18n="ai.title">AI Settings</h3>
+      <button class="settings-close" id="aiSettingsClose">✕</button>
+    </div>
+
+    <div class="settings-body">
+      <label class="settings-toggle">
+        <input type="checkbox" id="aiEnabled">
+        <span data-i18n="ai.enable">Enable AI features</span>
+      </label>
+
+      <div class="settings-group">
+        <label data-i18n="ai.provider">Provider</label>
+        <select id="aiProvider" class="settings-select">
+          <option value="ollama">Ollama (Local)</option>
+          <option value="openai">OpenAI</option>
+          <option value="anthropic">Anthropic</option>
+        </select>
+      </div>
+
+      <div class="settings-group" id="ollamaSettings">
+        <label data-i18n="ai.ollama_url">Ollama URL</label>
+        <input type="text" id="ollamaUrl" class="settings-input" value="http://localhost:11434">
+        <label data-i18n="ai.ollama_model">Model</label>
+        <input type="text" id="ollamaModel" class="settings-input" value="llama3.2">
+      </div>
+
+      <div class="settings-group" id="openaiSettings" style="display:none">
+        <label data-i18n="ai.api_key">API Key</label>
+        <input type="password" id="openaiKey" class="settings-input" placeholder="sk-...">
+        <label data-i18n="ai.model">Model</label>
+        <input type="text" id="openaiModel" class="settings-input" value="gpt-4o-mini">
+      </div>
+
+      <div class="settings-group" id="anthropicSettings" style="display:none">
+        <label data-i18n="ai.api_key">API Key</label>
+        <input type="password" id="anthropicKey" class="settings-input" placeholder="sk-ant-...">
+        <label data-i18n="ai.model">Model</label>
+        <input type="text" id="anthropicModel" class="settings-input" value="claude-3-5-haiku-latest">
+      </div>
+
+      <button class="settings-test-btn" id="testConnection" data-i18n="ai.test">Test Connection</button>
+      <span class="settings-test-result" id="testResult"></span>
+
+      <div class="settings-features">
+        <label class="settings-toggle">
+          <input type="checkbox" id="featureWeekly">
+          <span data-i18n="ai.weekly_summary">Weekly Summary</span>
+        </label>
+        <label class="settings-toggle">
+          <input type="checkbox" id="featureStreak">
+          <span data-i18n="ai.streak_messages">Streak Messages</span>
+        </label>
+        <label class="settings-toggle">
+          <input type="checkbox" id="featureRecovery">
+          <span data-i18n="ai.recovery_advice">Recovery Advice</span>
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AI output containers -->
+<div class="ai-toast" id="aiToast"></div>
+
 <script src="translations.js"></script>
-<script src="app.js?v=8"></script>
+<script src="ai.js"></script>
+<script src="app.js?v=15"></script>
 </body>
 </html>
