@@ -2,15 +2,15 @@
    Streakr — i18n Translations
    English (en), Hindi (hi), Telugu (te)
 ══════════════════════════════════ */
-const LANGUAGES = [
+window.LANGUAGES = [
   { code: 'en', name: 'English', native: 'English' },
   { code: 'hi', name: 'Hindi', native: 'हिन्दी' },
   { code: 'te', name: 'Telugu', native: 'తెలుగు' },
 ];
 
-const LOCALE_MAP = { en: 'en-US', hi: 'hi-IN', te: 'te-IN' };
+window.LOCALE_MAP = { en: 'en-US', hi: 'hi-IN', te: 'te-IN' };
 
-const translations = {
+window.translations = {
   en: {
     'sidebar.logo': 'Streakr - Habit Tracker',
     'sidebar.today': 'Today',
@@ -125,6 +125,27 @@ const translations = {
     'icon.clean': 'Clean',
     'icon.outside': 'Go Outside',
     'icon.study': 'Study',
+
+    'lang.en': 'English',
+    'lang.hi': 'Hindi',
+    'lang.te': 'Telugu',
+
+    'ai.title': 'AI Settings',
+    'ai.enable': 'Enable AI features',
+    'ai.provider': 'Provider',
+    'ai.ollama_url': 'Ollama URL',
+    'ai.ollama_model': 'Model',
+    'ai.api_key': 'API Key',
+    'ai.model': 'Model',
+    'ai.test': 'Test Connection',
+    'ai.weekly_summary': 'Weekly Summary',
+    'ai.streak_messages': 'Streak Messages',
+    'ai.recovery_advice': 'Recovery Advice',
+    'ai.test_success': 'Connection OK',
+    'ai.test_fail': 'Connection failed',
+    'ai.testing': 'Testing…',
+    'ai.summary_loading': 'Generating weekly summary…',
+    'ai.summary_title': 'AI Weekly Summary',
   },
 
   hi: {
@@ -240,6 +261,27 @@ const translations = {
     'icon.clean': 'सफाई',
     'icon.outside': 'बाहर जाएं',
     'icon.study': 'अध्ययन',
+
+    'lang.en': 'अंग्रेज़ी',
+    'lang.hi': 'हिन्दी',
+    'lang.te': 'तेलुगु',
+
+    'ai.title': 'AI सेटिंग्स',
+    'ai.enable': 'AI सुविधाएँ सक्षम करें',
+    'ai.provider': 'प्रदाता',
+    'ai.ollama_url': 'Ollama URL',
+    'ai.ollama_model': 'मॉडल',
+    'ai.api_key': 'API कुंजी',
+    'ai.model': 'मॉडल',
+    'ai.test': 'कनेक्शन जांचें',
+    'ai.weekly_summary': 'साप्ताहिक सारांश',
+    'ai.streak_messages': 'स्ट्रीक संदेश',
+    'ai.recovery_advice': 'पुनर्प्राप्ति सलाह',
+    'ai.test_success': 'कनेक्शन सफल',
+    'ai.test_fail': 'कनेक्शन विफल',
+    'ai.testing': 'जाँच हो रही है…',
+    'ai.summary_loading': 'साप्ताहिक सारांश तैयार हो रहा है…',
+    'ai.summary_title': 'AI साप्ताहिक सारांश',
   },
 
   te: {
@@ -355,5 +397,26 @@ const translations = {
     'icon.clean': 'శుభ్రపరచడం',
     'icon.outside': 'బయటికి వెళ్ళు',
     'icon.study': 'చదువు',
+
+    'lang.en': 'ఆంగ్లం',
+    'lang.hi': 'హిందీ',
+    'lang.te': 'తెలుగు',
+
+    'ai.title': 'AI సెట్టింగ్‌లు',
+    'ai.enable': 'AI ఫీచర్‌లను ప్రారంభించండి',
+    'ai.provider': 'ప్రొవైడర్',
+    'ai.ollama_url': 'Ollama URL',
+    'ai.ollama_model': 'మోడల్',
+    'ai.api_key': 'API కీ',
+    'ai.model': 'మోడల్',
+    'ai.test': 'కనెక్షన్ పరీక్షించండి',
+    'ai.weekly_summary': 'వార సారాంశం',
+    'ai.streak_messages': 'స్ట్రీక్ సందేశాలు',
+    'ai.recovery_advice': 'పునరుద్ధరణ సలహా',
+    'ai.test_success': 'కనెక్షన్ విజయవంతమైంది',
+    'ai.test_fail': 'కనెక్షన్ విఫలమైంది',
+    'ai.testing': 'పరీక్షిస్తోంది…',
+    'ai.summary_loading': 'వార సారాంశం రూపొందించబడుతోంది…',
+    'ai.summary_title': 'AI వార సారాంశం',
   },
 };
