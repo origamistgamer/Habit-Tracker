@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
-  "entry": ["app.js", "index.html"],
-  "ignore": ["sw.js", ".specify/**", ".speckit/**", ".cursor/**"],
+  "entry": ["app.js", "index.html", "ai.js", "translations.js"],
+  "ignore": ["eslint.config.js", "sw.js", ".specify/**", ".speckit/**", ".cursor/**"],
   "ignoreDependencies": ["eslint", "@biomejs/biome"]
 }

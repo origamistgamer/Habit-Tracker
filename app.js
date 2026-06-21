@@ -43,8 +43,7 @@ let aiToastTimer = null;
 let currentLang = localStorage.getItem('streakr_lang') || 'en';
 
 function t(key, vars = {}) {
-  let str = (translations[currentLang] && translations[currentLang][key]) ||
-            (translations['en'] && translations['en'][key]) || key;
+  let str = translations[currentLang]?.[key] || translations.en?.[key] || key;
   Object.entries(vars).forEach(([k, v]) => { str = str.replace(new RegExp('\\{\\{' + k + '\\}\\}', 'g'), v); });
   return str;
 }
@@ -79,7 +78,6 @@ function getLocale() { return LOCALE_MAP[currentLang] || 'en-US'; }
 /* ── AI ── */
 function initAISettingsPanel() {
   const overlay = document.getElementById('aiSettingsOverlay');
-  const panel = document.getElementById('aiSettingsPanel');
   const openBtn = document.getElementById('openAISettings');
   const closeBtn = document.getElementById('aiSettingsClose');
 
@@ -405,7 +403,7 @@ function renderToday() {
       const missed = parseInt(el.dataset.missed, 10);
       const habit = habits.find(h => h.id === habitId);
       if (habit) {
-        const displayName = habit.name && habit.name[currentLang] ? habit.name[currentLang] : habit.name;
+        const displayName = habit.name?.[currentLang] ? habit.name[currentLang] : habit.name;
         AI.getRecoveryAdvice(displayName, missed, currentLang).then(msg => {
           if (msg) el.innerHTML = createAICard('ai.recovery_advice', msg);
         }).catch(() => { el.innerHTML = ''; });
@@ -750,7 +748,7 @@ function openModal(id = null) {
   pickedIcon = h ? (h.icon || 'run') : 'run';
 
   // Populate translation fields
-  if (h && h.name && typeof h.name === 'object') {
+  if (h?.name && typeof h.name === 'object') {
     document.getElementById('habitNameEn').value = h.name.en || '';
     document.getElementById('habitNameHi').value = h.name.hi || '';
     document.getElementById('habitNameTe').value = h.name.te || '';
