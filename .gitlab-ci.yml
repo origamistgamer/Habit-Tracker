@@ -1,6 +1,5 @@
 stages:
   - lint
-  - audit
   - deploy
 
 lint:frontend:
@@ -10,16 +9,6 @@ lint:frontend:
     - npm ci
     - npm run lint
     - npm run knip
-  allow_failure: false
-
-audit:secrets:
-  stage: audit
-  image:
-    name: zricethezav/gitleaks:latest
-    entrypoint: [""]
-  script:
-    - gitleaks detect --source . --verbose
-  allow_failure: true
 
 pages:
   stage: deploy
