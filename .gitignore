@@ -19,5 +19,8 @@ node_modules/
 # Logs
 *.log
 
+# Build artifacts
+builds/
+
 # Streakr data
 data.json
