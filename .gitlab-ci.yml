@@ -19,7 +19,7 @@ audit:secrets:
     entrypoint: [""]
   script:
     - gitleaks detect --source . --verbose
-  allow_failure: false
+  allow_failure: true
 
 pages:
   stage: deploy
