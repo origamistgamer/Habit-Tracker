@@ -1,5 +1,5 @@
 /* ══════════════════════════════════
-   Streakr v4 — app.js (runner test)
+   Streakr v4 — app.js (debug bash wrapper)
 ══════════════════════════════════ */
 const STORE = 'streakr_v3';
 
