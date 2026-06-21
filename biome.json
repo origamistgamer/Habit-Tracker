@@ -6,12 +6,20 @@
     "indentWidth": 2,
     "lineWidth": 120
   },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "semicolons": "always",
+      "trailingCommas": "all"
+    }
+  },
   "linter": {
     "enabled": true,
     "rules": {
       "recommended": true,
       "style": {
-        "useTemplate": "off"
+        "useTemplate": "off",
+        "useSingleVarDeclarator": "off"
       },
       "suspicious": {
         "useIterableCallbackReturn": "off"
