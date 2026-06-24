@@ -22,5 +22,8 @@ node_modules/
 # Build artifacts
 builds/
 
+# Local utilities
+commit-checker.ps1
+
 # Streakr data
 data.json
