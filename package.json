@@ -10,7 +10,8 @@
 		"format:fix": "biome format . --write",
 		"lint:fix": "biome check . --write",
 		"knip": "knip",
-		"audit": "npm audit --audit-level=high"
+		"audit": "npm audit --audit-level=high",
+		"validate": "node -e \"const fs=require('fs');['manifest.json','package.json','biome.json'].forEach(f=>{const c=fs.readFileSync(f,'utf8');JSON.parse(c);console.log(f+': OK')})\""
 	},
 	"keywords": ["habits", "tracker", "pwa", "streaks"],
 	"author": "origamistgamer",

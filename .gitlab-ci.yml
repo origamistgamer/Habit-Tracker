@@ -1,8 +1,16 @@
 stages:
+  - validate
   - lint
   - format
   - deadcode
   - security
+
+validate:
+  stage: validate
+  image: node:20-alpine
+  script:
+    - npm ci
+    - npm run validate
 
 lint:
   stage: lint
