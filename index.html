@@ -7,7 +7,7 @@
   <meta name="description" content="Streakr - Habit Tracker. Build daily routines, track streaks, and visualize your progress."/>
   <meta name="theme-color" content="#0c0c0e"/>
   <link rel="manifest" href="manifest.json"/>
-  <link rel="stylesheet" href="style.css?v=756"/>
+  <link rel="stylesheet" href="style.css?v=758"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
@@ -343,6 +343,25 @@
 
 <!-- AI output containers -->
 <div class="ai-toast" id="aiToast"></div>
+
+<!-- Bottom nav (mobile) -->
+<nav class="bottom-nav">
+  <button class="bnav-btn active" data-view="today">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <span data-i18n="sidebar.today">Today</span>
+  </button>
+  <button class="bnav-btn" data-view="grid">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" fill="currentColor"/><rect x="14" y="3" width="7" height="7" rx="1.5" fill="currentColor" opacity=".4"/><rect x="3" y="14" width="7" height="7" rx="1.5" fill="currentColor" opacity=".4"/><rect x="14" y="14" width="7" height="7" rx="1.5" fill="currentColor" opacity=".7"/></svg>
+    <span data-i18n="sidebar.calendar">Calendar</span>
+  </button>
+  <button class="bnav-btn" data-view="stats">
+    <svg viewBox="0 0 24 24"><path d="M3 20h18M7 10v10M12 4v16M17 7v13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <span data-i18n="sidebar.stats">Stats</span>
+  </button>
+  <button class="bnav-btn bnav-add" id="bnavAdd">
+    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+  </button>
+</nav>
 
 <script src="translations.js"></script>
 <script src="ai.js"></script>

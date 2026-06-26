@@ -970,7 +970,7 @@ function deleteHabit() {
 function setView(v) {
   view = v;
   document.body.classList.toggle('landing-mode', v === 'landing');
-  document.querySelectorAll('.nav-btn').forEach((b) => b.classList.toggle('active', b.dataset.view === v));
+  document.querySelectorAll('.nav-btn, .bnav-btn').forEach((b) => b.classList.toggle('active', b.dataset.view === v));
   document.querySelectorAll('.view').forEach((el) => el.classList.remove('active'));
   document.getElementById('view-' + v).classList.add('active');
   render();
@@ -1008,8 +1008,9 @@ async function init() {
     </svg>`,
   );
 
-  // Sidebar nav
-  document.querySelectorAll('.nav-btn').forEach((b) => b.addEventListener('click', () => setView(b.dataset.view)));
+  // Sidebar nav + bottom nav
+  document.querySelectorAll('.nav-btn, .bnav-btn').forEach((b) => b.addEventListener('click', () => setView(b.dataset.view)));
+  document.getElementById('bnavAdd').addEventListener('click', () => openModal());
 
   // Language switcher
   document.querySelectorAll('.lang-btn').forEach((b) => b.addEventListener('click', () => setLang(b.dataset.lang)));
