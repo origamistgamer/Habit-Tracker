@@ -970,7 +970,9 @@ function deleteHabit() {
 function setView(v) {
   view = v;
   document.body.classList.toggle('landing-mode', v === 'landing');
-  document.querySelectorAll('.nav-btn, .bnav-btn').forEach((b) => b.classList.toggle('active', b.dataset.view === v));
+  document
+    .querySelectorAll('.nav-btn, .bnav-btn:not(.bnav-add)')
+    .forEach((b) => b.classList.toggle('active', b.dataset.view === v));
   document.querySelectorAll('.view').forEach((el) => el.classList.remove('active'));
   document.getElementById('view-' + v).classList.add('active');
   render();
@@ -1010,7 +1012,7 @@ async function init() {
 
   // Sidebar nav + bottom nav
   document
-    .querySelectorAll('.nav-btn, .bnav-btn')
+    .querySelectorAll('.nav-btn, .bnav-btn:not(.bnav-add)')
     .forEach((b) => b.addEventListener('click', () => setView(b.dataset.view)));
   document.getElementById('bnavAdd').addEventListener('click', () => openModal());
 
