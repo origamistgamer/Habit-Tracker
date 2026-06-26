@@ -1009,7 +1009,9 @@ async function init() {
   );
 
   // Sidebar nav + bottom nav
-  document.querySelectorAll('.nav-btn, .bnav-btn').forEach((b) => b.addEventListener('click', () => setView(b.dataset.view)));
+  document
+    .querySelectorAll('.nav-btn, .bnav-btn')
+    .forEach((b) => b.addEventListener('click', () => setView(b.dataset.view)));
   document.getElementById('bnavAdd').addEventListener('click', () => openModal());
 
   // Language switcher
