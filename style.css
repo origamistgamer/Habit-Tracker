@@ -241,7 +241,6 @@ body {
   cursor: pointer;
   transition: border-color .2s, transform .2s, box-shadow .2s;
   position: relative;
-  overflow: hidden;
   user-select: none;
   backdrop-filter: blur(10px);
 }
